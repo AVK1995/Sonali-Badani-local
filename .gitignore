@@ -38,5 +38,5 @@ yarn-error.log*
 .vscode/
 .idea/
 
-# Claude Code local tooling (plugins + installed skills; not part of the app)
-.claude/
+# Claude Code — share team setup (settings + skills), keep personal overrides out
+.claude/settings.local.json
