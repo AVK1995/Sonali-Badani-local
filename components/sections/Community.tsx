@@ -4,9 +4,9 @@ import { COMMUNITY_PARAS } from '@/lib/content';
 
 export default function Community() {
   return (
-    <Section>
+    <Section tint>
       <div className="container-page">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-navy/10 bg-warm p-8 text-center shadow-card sm:p-12">
+        <div className="mx-auto max-w-3xl rounded-3xl border border-navy/10 bg-white p-8 text-center shadow-card sm:p-12">
           <SectionHeading eyebrow="Your circle" title="You won't do this alone" />
           <Reveal className="mt-7 space-y-5">
             <p className="lede">{COMMUNITY_PARAS[0]}</p>

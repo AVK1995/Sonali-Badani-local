@@ -38,7 +38,7 @@ export default function TestimonialsCarousel({ items }: { items: Item[] }) {
         >
           {items.map((t, i) => (
             <li key={i} className="w-full shrink-0 px-1">
-              <figure className="flex h-full select-none flex-col items-center rounded-2xl border border-navy/10 bg-white p-6 text-center shadow-soft">
+              <figure className="flex h-full select-none flex-col items-center rounded-2xl border border-navy/10 bg-warm p-6 text-center shadow-soft">
                 <Quote className="h-7 w-7 text-coral" aria-hidden="true" />
                 <blockquote className="mt-4 grow font-body text-[15px] leading-relaxed text-navy/85">
                   {t.quote}

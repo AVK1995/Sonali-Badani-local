@@ -4,12 +4,12 @@ import { MECHANISM_PARAS } from '@/lib/content';
 
 export default function Mechanism() {
   return (
-    <Section tint>
+    <Section>
       <div className="container-page">
         <SectionHeading eyebrow="The One Partner Pivot" title="What if you didn't need him to change" />
 
         <div className="mx-auto mt-10 max-w-3xl">
-          <div className="rounded-3xl border border-navy/10 bg-white p-7 shadow-card sm:p-10">
+          <div className="rounded-3xl border border-navy/10 bg-warm p-7 shadow-card sm:p-10">
             <Reveal className="space-y-5">
               {MECHANISM_PARAS.map((p, i) => (
                 <p

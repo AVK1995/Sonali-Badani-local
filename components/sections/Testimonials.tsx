@@ -12,7 +12,7 @@ import {
 
 export default function Testimonials() {
   return (
-    <Section tint>
+    <Section>
       <div className="container-page">
         <SectionHeading eyebrow="In their words" title={TESTIMONIALS_HEAD} lede={TESTIMONIALS_INTRO} />
 
@@ -20,7 +20,7 @@ export default function Testimonials() {
         <div className="mx-auto mt-10 hidden max-w-5xl gap-5 sm:grid lg:grid-cols-3">
           {TESTIMONIALS.map((t, i) => (
             <Reveal key={t.by} delay={i * 90} className="h-full">
-              <figure className="group flex h-full flex-col rounded-2xl border border-navy/10 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-coral/40 hover:shadow-card sm:p-7">
+              <figure className="group flex h-full flex-col rounded-2xl border border-navy/10 bg-warm p-6 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-coral/40 hover:bg-white hover:shadow-card sm:p-7">
                 <Quote
                   className="h-7 w-7 text-coral transition-transform duration-300 group-hover:scale-110"
                   aria-hidden="true"

@@ -5,7 +5,7 @@ import { SOUND_LIKE_YOU, SOUND_LIKE_YOU_CLOSE } from '@/lib/content';
 
 export default function SoundLikeYou() {
   return (
-    <Section>
+    <Section tint>
       <div className="container-reading">
         <SectionHeading eyebrow="The quiet signs" title="Does this sound like you" />
         <div className="mt-9">

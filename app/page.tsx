@@ -3,7 +3,6 @@ import Footer from '@/components/Footer';
 import StickyMobileCTA from '@/components/StickyMobileCTA';
 
 import Hero from '@/components/sections/Hero';
-import BrandBand from '@/components/sections/BrandBand';
 import SoundLikeYou from '@/components/sections/SoundLikeYou';
 import TheWomanBecoming from '@/components/sections/TheWomanBecoming';
 import TheLoop from '@/components/sections/TheLoop';
@@ -26,8 +25,7 @@ export default function HomePage() {
     <>
       <Header />
       <main className="pb-20 md:pb-0">
-        <Hero />              {/* 1 · Hero */}
-        <BrandBand />         {/* 1b · Brand line */}
+        <Hero />              {/* 1 · Hero (closes with the brand crescendo) */}
         <SoundLikeYou />      {/* 2 · Does this sound like you */}
         <TheWomanBecoming />  {/* 3b · The woman you've been becoming */}
         <TheLoop />           {/* 4 · The loop nobody showed you */}

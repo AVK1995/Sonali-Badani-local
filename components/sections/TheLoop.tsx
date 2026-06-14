@@ -4,7 +4,7 @@ import { LOOP_PARAS } from '@/lib/content';
 
 export default function TheLoop() {
   return (
-    <Section>
+    <Section tint>
       <div className="container-reading">
         <SectionHeading eyebrow="The hidden loop" title="The loop nobody showed you" />
 
@@ -19,7 +19,7 @@ export default function TheLoop() {
           <p className="lede">{LOOP_PARAS[3]}</p>
         </Reveal>
 
-        <Reveal className="mt-8 rounded-2xl border border-coral/40 bg-warm px-6 py-6 text-center sm:px-10">
+        <Reveal className="mt-8 rounded-2xl border border-coral/40 bg-white px-6 py-6 text-center sm:px-10">
           <p className="font-serif text-[19px] leading-snug text-navy sm:text-[23px]">
             {LOOP_PARAS[4]}
           </p>

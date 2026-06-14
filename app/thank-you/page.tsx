@@ -113,7 +113,7 @@ export default function ThankYouPage() {
           <div className="container-page">
             <Reveal className="text-center">
               <p className="mb-3 flex items-center justify-center gap-2">
-                <Sparkle twinkle className="h-3 w-3 text-coral" />
+                <Sparkle twinkle className="h-3 w-3 text-gold" />
                 <span className="eyebrow">Your next steps</span>
               </p>
               <h2 className="text-[24px] font-semibold sm:text-[30px]">Your next steps</h2>

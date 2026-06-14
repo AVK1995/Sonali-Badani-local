@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 import Reveal from './Reveal';
+import WordReveal from './WordReveal';
 import Sparkle from './Sparkle';
 
 /**
@@ -44,20 +45,28 @@ export function SectionHeading({
   lede?: ReactNode;
   align?: 'center' | 'left';
 }) {
+  const headingCls =
+    'text-balance text-[28px] font-semibold leading-[1.1] tracking-tight sm:text-[36px] lg:text-[42px]';
   return (
-    <Reveal className={cn(align === 'center' ? 'text-center' : 'text-left')}>
+    <div className={cn(align === 'center' ? 'text-center' : 'text-left')}>
       {eyebrow && (
-        <p className={cn('mb-4 flex items-center gap-2', align === 'center' && 'justify-center')}>
-          <Sparkle twinkle className="h-3 w-3 text-coral" />
+        <Reveal as="p" className={cn('mb-4 flex items-center gap-2', align === 'center' && 'justify-center')}>
+          <Sparkle twinkle className="h-3 w-3 text-gold" />
           <span className="eyebrow">{eyebrow}</span>
-        </p>
+        </Reveal>
       )}
-      <h2 className="text-balance text-[28px] font-semibold leading-[1.1] tracking-tight sm:text-[36px] lg:text-[42px]">
-        {title}
-      </h2>
+      {typeof title === 'string' ? (
+        <WordReveal as="h2" text={title} className={headingCls} />
+      ) : (
+        <Reveal as="h2" className={headingCls}>
+          {title}
+        </Reveal>
+      )}
       {lede && (
-        <p className={cn('lede mt-5', align === 'center' && 'mx-auto max-w-reading')}>{lede}</p>
+        <Reveal as="p" delay={140} className={cn('lede mt-5', align === 'center' && 'mx-auto max-w-reading')}>
+          {lede}
+        </Reveal>
       )}
-    </Reveal>
+    </div>
   );
 }

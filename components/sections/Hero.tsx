@@ -1,7 +1,8 @@
 import { ShieldCheck, PlayCircle } from 'lucide-react';
 import AccessButton from '@/components/AccessButton';
 import Sparkle from '@/components/ui/Sparkle';
-import { HERO } from '@/lib/content';
+import Reveal from '@/components/ui/Reveal';
+import { HERO, BRAND_BAND } from '@/lib/content';
 import { HEADLINE_VARIANT } from '@/lib/flags';
 
 function Headline() {
@@ -34,9 +35,9 @@ export default function Hero() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-coral/20 blur-3xl sm:h-96 sm:w-96" />
         <div className="absolute top-40 -right-16 h-72 w-72 rounded-full bg-navy/[0.06] blur-3xl" />
-        <Sparkle twinkle className="absolute left-[8%] top-[22%] h-4 w-4 text-coral/70" />
-        <Sparkle twinkle className="absolute right-[12%] top-[14%] h-5 w-5 text-coral/60" />
-        <Sparkle twinkle className="absolute left-[16%] bottom-[16%] h-3.5 w-3.5 text-coral/50" />
+        <Sparkle twinkle className="absolute left-[8%] top-[22%] h-4 w-4 text-gold/70" />
+        <Sparkle twinkle className="absolute right-[12%] top-[14%] h-5 w-5 text-gold/60" />
+        <Sparkle twinkle className="absolute left-[16%] bottom-[16%] h-3.5 w-3.5 text-gold/50" />
       </div>
 
       <div className="container-page relative">
@@ -46,7 +47,7 @@ export default function Hero() {
             {...up(0)}
             className="glow-chip inline-flex items-center gap-2 rounded-pill border border-coral/30 bg-coral/[0.08] px-4 py-1.5 font-body text-[11.5px] font-bold uppercase tracking-[0.2em] text-coral-dark animate-fade-up"
           >
-            <Sparkle twinkle className="h-3.5 w-3.5 text-coral" />
+            <Sparkle twinkle className="h-3.5 w-3.5 text-gold" />
             The One Partner Reset
           </span>
 
@@ -96,8 +97,8 @@ export default function Hero() {
                 </div>
               </div>
             </div>
-            <Sparkle twinkle className="absolute -left-3 top-10 h-5 w-5 text-coral" />
-            <Sparkle twinkle className="absolute -right-2 bottom-14 h-4 w-4 text-coral/80" />
+            <Sparkle twinkle className="absolute -left-3 top-10 h-5 w-5 text-gold" />
+            <Sparkle twinkle className="absolute -right-2 bottom-14 h-4 w-4 text-gold/80" />
           </div>
 
           {/* 6 · Offer + button */}
@@ -121,6 +122,30 @@ export default function Hero() {
           >
             {HERO.trustBar}
           </p>
+        </div>
+
+        {/* Hero closing — the brand crescendo. Was its own band; now it lives
+            inside the hero on white, so it reads as the hero's final line, not
+            a separate section. */}
+        <div className="mx-auto mt-16 max-w-3xl text-center sm:mt-20">
+          <Reveal>
+            <p className="font-serif text-[24px] font-semibold leading-snug text-navy sm:text-[32px] lg:text-[38px]">
+              Stop surviving your marriage. Start designing your{' '}
+              <span className="mark">Love Legacy.</span>
+            </p>
+          </Reveal>
+
+          <Reveal delay={100} className="my-6 flex items-center justify-center gap-3">
+            <span className="h-px w-10 bg-navy/15" />
+            <Sparkle twinkle className="h-4 w-4 text-gold" />
+            <span className="h-px w-10 bg-navy/15" />
+          </Reveal>
+
+          <Reveal delay={160}>
+            <p className="mx-auto max-w-2xl font-serif text-[17px] italic leading-relaxed text-navy/75 sm:text-[20px]">
+              {BRAND_BAND.line2}
+            </p>
+          </Reveal>
         </div>
       </div>
     </section>

@@ -6,7 +6,7 @@ import { WHAT_NEXT_INTRO, WHAT_NEXT_STEPS } from '@/lib/content';
  * coral category tags, divider rows. Single brand accent (coral), no rainbow. */
 export default function WhatHappensNext() {
   return (
-    <Section>
+    <Section tint>
       <div className="container-page">
         <SectionHeading eyebrow="Your first five steps" title="A simple path from here" lede={WHAT_NEXT_INTRO} />
 

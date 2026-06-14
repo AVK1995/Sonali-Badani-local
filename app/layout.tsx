@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Fraunces, Mulish } from 'next/font/google';
 import Script from 'next/script';
 import { CHECKOUT_CONFIG } from '@/lib/checkout-config';
+import SmoothScroll from '@/components/SmoothScroll';
 import './globals.css';
 
 /**
@@ -49,7 +50,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body className="font-body bg-white text-ink antialiased">
+      <body className="font-body bg-cream text-navy antialiased">
+        <SmoothScroll />
         {children}
 
         {/* Razorpay checkout — lazy-loaded so it never blocks first paint. */}

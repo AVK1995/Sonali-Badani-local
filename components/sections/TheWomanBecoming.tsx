@@ -5,7 +5,7 @@ import { THE_WOMAN_PARAS } from '@/lib/content';
 /** 3b · Identity beat. Quiet, white, centered. She buys the change in herself first. */
 export default function TheWomanBecoming() {
   return (
-    <Section tint>
+    <Section>
       <div className="container-reading text-center">
         <SectionHeading eyebrow="This is about you" title="The woman you've been becoming" />
 

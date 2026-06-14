@@ -5,13 +5,13 @@ import { MEET_SONALI } from '@/lib/content';
 
 export default function MeetSonali() {
   return (
-    <Section>
+    <Section tint>
       <div className="container-page">
         <div className="mx-auto max-w-2xl text-center">
           {/* 1 · Eyebrow + title */}
           <Reveal>
             <p className="mb-3 flex items-center justify-center gap-2">
-              <Sparkle twinkle className="h-3 w-3 text-coral" />
+              <Sparkle twinkle className="h-3 w-3 text-gold" />
               <span className="eyebrow">Meet Sonali</span>
             </p>
             <h2 className="text-balance text-[28px] font-semibold leading-tight sm:text-[36px] lg:text-[40px]">
@@ -37,8 +37,8 @@ export default function MeetSonali() {
                 </div>
               </div>
             </div>
-            <Sparkle twinkle className="absolute -left-3 top-8 h-5 w-5 text-coral" />
-            <Sparkle twinkle className="absolute -right-2 bottom-12 h-4 w-4 text-coral/80" />
+            <Sparkle twinkle className="absolute -left-3 top-8 h-5 w-5 text-gold" />
+            <Sparkle twinkle className="absolute -right-2 bottom-12 h-4 w-4 text-gold/80" />
           </Reveal>
 
           {/* 3 · Sub heading */}
@@ -56,7 +56,7 @@ export default function MeetSonali() {
           </Reveal>
 
           {/* 5 · Call value anchor box */}
-          <Reveal className="mt-8 rounded-2xl border border-coral/40 bg-warm px-6 py-5">
+          <Reveal className="mt-8 rounded-2xl border border-coral/40 bg-white px-6 py-5">
             <p className="font-body text-[15px] leading-relaxed text-navy/90">
               {MEET_SONALI.callAnchor}
             </p>

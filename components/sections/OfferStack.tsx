@@ -31,7 +31,7 @@ function VersionBStack() {
           <Reveal
             key={item.name}
             delay={Math.min(i * 50, 250)}
-            className="flex gap-4 rounded-2xl border border-navy/10 bg-white p-5 shadow-soft transition-all duration-300 hover:border-coral/40 hover:shadow-card sm:p-6"
+            className="flex gap-4 rounded-2xl border border-navy/10 bg-warm p-5 shadow-soft transition-all duration-300 hover:border-coral/40 hover:shadow-card sm:p-6"
           >
             <span className="glow-chip mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-coral/15">
               <Check className="h-4 w-4 text-coral-dark" strokeWidth={3} />
@@ -55,7 +55,7 @@ function VersionBStack() {
             <div
               key={b.name}
               style={{ top: `calc(5rem + ${i * 3.5}rem)` }}
-              className={`sticky mb-5 min-h-[150px] overflow-hidden rounded-3xl bg-white px-6 pb-6 pt-4 shadow-card sm:px-8 sm:pb-8 ${
+              className={`sticky mb-5 min-h-[150px] overflow-hidden rounded-3xl bg-warm px-6 pb-6 pt-4 shadow-card sm:px-8 sm:pb-8 ${
                 b.marquee ? 'border-2 border-coral' : 'border border-navy/10'
               }`}
             >
@@ -93,7 +93,7 @@ function VersionBStack() {
 
 function VersionAStack() {
   return (
-    <Reveal className="mx-auto mt-10 max-w-2xl overflow-hidden rounded-3xl border border-navy/[0.12] bg-white shadow-card">
+    <Reveal className="mx-auto mt-10 max-w-2xl overflow-hidden rounded-3xl border border-navy/[0.12] bg-warm shadow-card">
       <ul>
         {VALUE_STACK.items.map((item) => (
           <li
@@ -126,7 +126,7 @@ function VersionAStack() {
 export default function OfferStack() {
   const isA = OFFER_VARIANT === 'A';
   return (
-    <Section tint>
+    <Section>
       <div className="container-page">
         <SectionHeading
           eyebrow="Everything you get"
@@ -139,9 +139,9 @@ export default function OfferStack() {
         {!isA && (
           <Reveal
             variant="scale"
-            className="relative mx-auto mt-10 max-w-2xl overflow-hidden rounded-2xl border border-coral/40 bg-white px-6 py-7 text-center shadow-card ring-1 ring-coral/20 sm:px-10"
+            className="relative mx-auto mt-10 max-w-2xl overflow-hidden rounded-2xl border border-coral/40 bg-warm px-6 py-7 text-center shadow-card ring-1 ring-coral/20 sm:px-10"
           >
-            <Sparkle twinkle className="absolute right-4 top-4 h-4 w-4 text-coral/70" aria-hidden="true" />
+            <Sparkle twinkle className="absolute right-4 top-4 h-4 w-4 text-gold/70" aria-hidden="true" />
             <p className="font-serif text-[18px] leading-snug text-navy sm:text-[21px]">{OFFER_INCLUDED}</p>
           </Reveal>
         )}

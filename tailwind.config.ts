@@ -22,6 +22,16 @@ const config: Config = {
           DEFAULT: '#F59075',
           dark: '#E5795C', // hover state (tint of coral)
         },
+        // Warm neutral foundation (ikore-inspired): cream page base + sand sections
+        cream: '#FBF7F1',
+        sand: '#F2E9DD',
+        // Gold — secondary accent for decorative flourishes only (sparkles, seal,
+        // dividers). Never CTAs (coral stays the action colour) or small text.
+        gold: {
+          DEFAULT: '#C2A36B',
+          deep: '#A98A4F',
+          soft: '#EFE6D3',
+        },
         ink: '#000000',
       },
       fontFamily: {

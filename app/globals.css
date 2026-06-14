@@ -20,6 +20,9 @@
   :root {
     --navy: #203f5c;
     --coral: #f59075;
+    --gold: #c2a36b;
+    --cream: #fbf7f1;
+    --sand: #f2e9dd;
     /* Decisive ease-out curves (no bounce/elastic) */
     --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
     --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
@@ -37,8 +40,8 @@
   }
 
   body {
-    background: #ffffff;
-    color: #000000;
+    background: #fbf7f1; /* warm cream page base */
+    color: var(--navy);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -65,6 +68,20 @@
   :focus-visible {
     outline: 2px solid var(--navy);
     outline-offset: 3px;
+  }
+
+  /* Subtle film grain across the page — gives the flat warm fills a richer,
+     less "flat" feel (the premium-site trick). Fixed, non-interactive, very low
+     opacity. Delete this whole block to drop the texture; lower the opacity to
+     soften it. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 }
 
@@ -135,11 +152,13 @@
     @apply mx-auto h-px w-full max-w-reading border-0 bg-navy/[0.12];
   }
 
-  /* Very light warm tint for alternating sections and warm cards. A faint coral
-     tint over white reads warm while staying inside the locked palette (no new
-     colour). Used to give the page its white/warm section rhythm. */
+  /* Warm peach-cream tint for the alternating sections (and warm cards). Warmer
+     and lighter than a flat beige so it reads as soft warm light, not oatmeal.
+     Sits a clear step below the cream page base so the rhythm stays visible.
+     Tune this one value: blush #f8eae4 · ivory #f8f3eb · greige #f3efe7 */
   .bg-warm {
-    background-color: #fbf6f4;
+    background-color: #F8ECE0;
+    /* background-color:#F8EAE4	 */
   }
 
   /* Lede / supporting paragraph */
@@ -231,14 +250,33 @@
 .reveal {
   opacity: 0;
   transform: translateY(26px);
+  filter: blur(5px); /* subtle cinematic blur-up (ikore-inspired) */
   transition: opacity 0.85s var(--ease-out-expo), transform 0.85s var(--ease-out-expo),
     filter 0.85s var(--ease-out-expo);
-  will-change: opacity, transform;
+  will-change: opacity, transform, filter;
 }
 .reveal.is-visible {
   opacity: 1;
   transform: none;
   filter: none;
+}
+
+/* ── Per-word reveal: each word fades + un-blurs up in sequence on scroll-in ──
+   (reference: ikore). Stagger driven by the inline --w-i index per word. */
+.word-reveal__w {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em) rotate(1.5deg);
+  filter: blur(6px);
+  transition: opacity 600ms var(--ease-out-expo), transform 700ms var(--ease-out-expo),
+    filter 600ms var(--ease-out-expo);
+  transition-delay: calc(var(--w-i, 0) * 50ms + 120ms);
+  will-change: opacity, transform, filter;
+}
+.word-reveal.in .word-reveal__w {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
 }
 .reveal--left {
   transform: translateX(-30px);
@@ -362,7 +400,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal {
+  .reveal,
+  .word-reveal__w {
     opacity: 1;
     transform: none;
     filter: none;
@@ -370,4 +409,19 @@
   .mark {
     background-size: 100% 100%;
   }
+}
+
+/* ── Lenis smooth scroll helpers (init adds the `lenis` class to <html>) ─────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }

@@ -1,10 +1,10 @@
 import Reveal from '@/components/ui/Reveal';
 import { THIRD_OPTION_PARAS, THIRD_OPTION_BOLD } from '@/lib/content';
 
-/** The movement / mission band. White, framed with hairline rules; navy text, coral accents. */
+/** The movement / mission band. Warm, framed with hairline rules; navy text, coral accents. */
 export default function ThirdOption() {
   return (
-    <section className="border-y border-navy/10 py-16 sm:py-20 lg:py-24">
+    <section className="border-y border-navy/10 bg-warm py-16 sm:py-20 lg:py-24">
       <div className="container-reading text-center">
         <Reveal>
           <p className="eyebrow mb-4">The third door</p>

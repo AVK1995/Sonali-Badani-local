@@ -5,7 +5,7 @@ import { ANOTHER_VERSION_PARAS, OUTCOMES_INTRO, OUTCOMES } from '@/lib/content';
 
 export default function AnotherVersion() {
   return (
-    <Section tint>
+    <Section>
       <div className="container-reading">
         <SectionHeading eyebrow="Thirty days from now" title="There's another version of this" />
 
