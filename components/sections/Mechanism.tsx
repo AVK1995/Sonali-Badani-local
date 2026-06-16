@@ -1,5 +1,6 @@
 import { Section, SectionHeading } from '@/components/ui/Section';
 import Reveal from '@/components/ui/Reveal';
+import SectionMedia from '@/components/ui/SectionMedia';
 import { MECHANISM_PARAS } from '@/lib/content';
 
 export default function Mechanism() {
@@ -8,8 +9,15 @@ export default function Mechanism() {
       <div className="container-page">
         <SectionHeading eyebrow="The One Partner Pivot" title="What if you didn't need him to change" />
 
-        <div className="mx-auto mt-10 max-w-3xl">
-          <div className="rounded-3xl border border-navy/10 bg-warm p-7 shadow-card sm:p-10">
+        <div className="mx-auto mt-10 grid max-w-5xl items-center gap-9 lg:grid-cols-2 lg:gap-12">
+          {/* The felt result of the pivot: a quieter morning, the first shift */}
+          <SectionMedia
+            src="/Section-Images/section-image3.png"
+            alt="A woman sitting quietly with her tea, calmer than before"
+            sizes="(max-width: 1024px) 100vw, 520px"
+            className="order-1"
+          />
+          <div className="order-2 rounded-3xl border border-navy/10 bg-warm p-7 shadow-card sm:p-9">
             <Reveal className="space-y-5">
               {MECHANISM_PARAS.map((p, i) => (
                 <p

@@ -1,14 +1,89 @@
+import Image from 'next/image';
 import { Section, SectionHeading } from '@/components/ui/Section';
 import Reveal from '@/components/ui/Reveal';
+import SectionMedia from '@/components/ui/SectionMedia';
 import CountUp from '@/components/ui/CountUp';
 import Sparkle from '@/components/ui/Sparkle';
 import AccessButton from '@/components/AccessButton';
-import { Check, Users, Gift } from 'lucide-react';
+import { Check, Gift } from 'lucide-react';
 import { OFFER_CORE, OFFER_BONUSES, OFFER_INCLUDED, VALUE_STACK } from '@/lib/content';
 import { OFFER_VARIANT } from '@/lib/flags';
 
 // Numeric value behind the displayed "₹12,500" total, for the count-up.
 const VALUE_TOTAL_NUM = Number(VALUE_STACK.total.replace(/[^\d]/g, ''));
+
+// Bonus cover images (user-provided). Bonuses 3-5 show a placeholder until their
+// covers arrive; the layout stays identical so they drop straight in. Dimensions
+// reserve space so cards don't reflow as images lazy-load.
+// next/image encodes the URL itself, so these use literal spaces (not %20).
+const BONUS_IMAGES: Record<number, { src: string }> = {
+  1: { src: '/Solani Bonuses/Affirmations.png' },
+  2: { src: '/Solani Bonuses/sonali-bonus-2.png' },
+};
+
+// Map each bonus to its rupee value from the value stack (matched by name).
+const bonusValue = (name: string) =>
+  VALUE_STACK.items.find((it) => it.name.includes(name))?.value;
+
+function BonusCard({ b, index }: { b: (typeof OFFER_BONUSES)[number]; index: number }) {
+  const img = BONUS_IMAGES[b.n];
+  const value = bonusValue(b.name);
+  return (
+    <Reveal
+      delay={Math.min(index * 70, 280)}
+      className={`flex flex-col overflow-hidden rounded-3xl bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_-24px_rgba(32,63,92,0.45)] ${
+        b.marquee ? 'border-2 border-coral/60' : 'border border-navy/10'
+      }`}
+    >
+      {/* Cover panel — the cover fills the entire box, edge to edge, with the
+          same center alignment on every card. */}
+      <div className="relative aspect-[16/9] overflow-hidden border-b border-navy/[0.06] bg-cream">
+        {img ? (
+          <Image
+            src={img.src}
+            alt={b.name}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover object-center"
+          />
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-navy/30">
+            <Gift className="h-8 w-8" strokeWidth={1.4} aria-hidden="true" />
+            <span className="font-body text-[10.5px] font-semibold uppercase tracking-[0.16em]">
+              Cover coming soon
+            </span>
+          </div>
+        )}
+        {b.marquee && (
+          <span className="absolute left-3 top-3 rounded-full bg-coral px-2.5 py-1 font-body text-[10px] font-bold uppercase tracking-[0.12em] text-navy shadow-cta">
+            Most loved
+          </span>
+        )}
+      </div>
+
+      {/* Body */}
+      <div className="flex grow flex-col p-5 sm:p-6">
+        <p className="font-body text-[11px] font-bold uppercase tracking-[0.16em] text-coral-dark">
+          Bonus · 0{b.n}
+        </p>
+        <h4 className="mt-2 font-serif text-[18px] font-semibold leading-snug text-navy sm:text-[20px]">
+          {b.name}
+        </h4>
+        <p className="mt-2 grow font-body text-[14px] leading-relaxed text-navy/70">{b.body}</p>
+        {value && (
+          <div className="mt-4 flex items-center gap-2.5">
+            <span className="rounded-full border border-gold/40 bg-gold/10 px-3 py-1 font-body text-[10.5px] font-bold uppercase tracking-[0.12em] text-gold-deep">
+              Included
+            </span>
+            <span className="font-body text-[13px] text-navy/45">
+              <span className="line-through decoration-navy/25">{value}</span> value
+            </span>
+          </div>
+        )}
+      </div>
+    </Reveal>
+  );
+}
 
 function TierLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -46,44 +121,12 @@ function VersionBStack() {
         ))}
       </div>
 
-      {/* Your bonuses — sticky-stacking cards: each sticks and the next slides
-          over it while the heading of the one behind stays peeking (ref: dr aditya). */}
+      {/* Your bonuses — static grid of image-topped cards (covers on top). */}
       <div className="mt-12">
         <TierLabel>Your bonuses</TierLabel>
-        <div className="mx-auto max-w-3xl pb-8">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {OFFER_BONUSES.map((b, i) => (
-            <div
-              key={b.name}
-              style={{ top: `calc(5rem + ${i * 3.5}rem)` }}
-              className={`sticky mb-5 min-h-[150px] overflow-hidden rounded-3xl bg-warm px-6 pb-6 pt-4 shadow-card sm:px-8 sm:pb-8 ${
-                b.marquee ? 'border-2 border-coral' : 'border border-navy/10'
-              }`}
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -bottom-7 right-1 font-serif text-[120px] font-semibold leading-none text-coral/10"
-              >
-                0{b.n}
-              </span>
-              <div className="relative flex items-center gap-2.5">
-                <span className="glow-chip grid h-8 w-8 shrink-0 place-items-center rounded-full bg-coral/15">
-                  {b.marquee ? (
-                    <Users className="h-4 w-4 text-coral-dark" />
-                  ) : (
-                    <Gift className="h-4 w-4 text-coral-dark" />
-                  )}
-                </span>
-                <span className="font-body text-[12px] font-bold uppercase tracking-[0.14em] text-coral-dark">
-                  Bonus {b.n}
-                </span>
-              </div>
-              <h3 className="relative mt-3 font-body text-[17px] font-bold leading-snug text-navy sm:text-[19px]">
-                {b.name}
-              </h3>
-              <p className="relative mt-2 max-w-xl font-body text-[14.5px] leading-relaxed text-navy/75">
-                {b.body}
-              </p>
-            </div>
+            <BonusCard key={b.name} b={b} index={i} />
           ))}
         </div>
       </div>
@@ -131,6 +174,15 @@ export default function OfferStack() {
         <SectionHeading
           eyebrow="Everything you get"
           title={isA ? "Here's everything you get today." : 'Everything inside the One Partner Reset'}
+        />
+
+        {/* The whole suite, shown in full — every book and tool you receive today. */}
+        <SectionMedia
+          src="/Section-Images/section-image9.png"
+          alt="The One Partner Reset book suite laid out in full"
+          aspect="aspect-[3/2]"
+          sizes="(max-width: 1024px) 100vw, 880px"
+          className="mx-auto mt-10 w-full max-w-3xl"
         />
 
         {isA ? <VersionAStack /> : <VersionBStack />}

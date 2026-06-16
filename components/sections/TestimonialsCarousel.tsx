@@ -5,18 +5,19 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Quote } from 'lucide-react';
 import { carouselSpring } from '@/lib/motion';
 
-type Item = { quote: string; by: string };
+type Shot = { src: string; w: number; h: number };
 
 /**
- * Mobile testimonials carousel. Replaces the old infinite auto-marquee (which
- * scrolled past too fast to read) with a swipeable, snap-to-card track: one
- * quote at a time, drag or tap a dot to move, equal-height cards. Reduced-motion
- * users get instant snaps. Desktop keeps the static grid in Testimonials.tsx.
+ * Mobile testimonials carousel — swipeable, snap-to-card track of the real
+ * client messages. Each screenshot is centred (object-contain) in a fixed-height
+ * cream frame so the varying aspect ratios stay uniform and nothing crops.
+ * Reduced-motion users get instant snaps. Desktop uses the masonry in
+ * Testimonials.tsx.
  */
-export default function TestimonialsCarousel({ items }: { items: Item[] }) {
+export default function TestimonialsCarousel({ shots }: { shots: Shot[] }) {
   const [index, setIndex] = useState(0);
   const reduce = useReducedMotion();
-  const count = items.length;
+  const count = shots.length;
   const clamp = (i: number) => Math.max(0, Math.min(count - 1, i));
 
   return (
@@ -36,15 +37,24 @@ export default function TestimonialsCarousel({ items }: { items: Item[] }) {
             else if (swipe > 50 || flick > 400) setIndex((i) => clamp(i - 1));
           }}
         >
-          {items.map((t, i) => (
+          {shots.map((s, i) => (
             <li key={i} className="w-full shrink-0 px-1">
-              <figure className="flex h-full select-none flex-col items-center rounded-2xl border border-navy/10 bg-warm p-6 text-center shadow-soft">
-                <Quote className="h-7 w-7 text-coral" aria-hidden="true" />
-                <blockquote className="mt-4 grow font-body text-[15px] leading-relaxed text-navy/85">
-                  {t.quote}
-                </blockquote>
-                <figcaption className="mt-5 font-body text-[13px] font-semibold uppercase tracking-[0.1em] text-navy/55">
-                  {t.by}
+              <figure className="select-none rounded-2xl border border-navy/10 bg-white p-2.5 shadow-soft">
+                <div className="flex h-[58vh] max-h-[520px] items-center justify-center overflow-hidden rounded-xl bg-cream ring-1 ring-navy/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={s.src}
+                    width={s.w}
+                    height={s.h}
+                    loading="lazy"
+                    draggable={false}
+                    alt="A message from a client who worked with Sonali"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+                <figcaption className="flex items-center gap-1.5 px-1 pb-0.5 pt-2.5 font-body text-[11px] font-semibold uppercase tracking-[0.1em] text-navy/45">
+                  <Quote className="h-3.5 w-3.5 text-coral" aria-hidden="true" />
+                  Real client message
                 </figcaption>
               </figure>
             </li>
@@ -54,11 +64,11 @@ export default function TestimonialsCarousel({ items }: { items: Item[] }) {
 
       {/* Dots */}
       <div className="mt-5 flex items-center justify-center gap-2">
-        {items.map((_, i) => (
+        {shots.map((_, i) => (
           <button
             key={i}
             type="button"
-            aria-label={`Show testimonial ${i + 1} of ${count}`}
+            aria-label={`Show message ${i + 1} of ${count}`}
             aria-current={i === index}
             onClick={() => setIndex(i)}
             className={`h-2 rounded-full transition-all duration-300 ${

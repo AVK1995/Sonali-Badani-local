@@ -1,6 +1,7 @@
-import { ShieldCheck, PlayCircle } from 'lucide-react';
+import { ShieldCheck, Zap, Lock } from 'lucide-react';
 import AccessButton from '@/components/AccessButton';
 import Sparkle from '@/components/ui/Sparkle';
+import SectionMedia from '@/components/ui/SectionMedia';
 import Reveal from '@/components/ui/Reveal';
 import { HERO, BRAND_BAND } from '@/lib/content';
 import { HEADLINE_VARIANT } from '@/lib/flags';
@@ -30,7 +31,7 @@ const up = (delay: number) => ({
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden pt-10 pb-16 sm:pt-14 sm:pb-20">
+    <section className="relative overflow-hidden pt-14 pb-16 sm:pt-20 sm:pb-20">
       {/* Atmosphere: soft coral orbs + drifting brand sparkles (accent only). */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-coral/20 blur-3xl sm:h-96 sm:w-96" />
@@ -81,44 +82,63 @@ export default function Hero() {
             {HERO.without}
           </p>
 
-          {/* 5 · Image / video */}
-          <div {...up(400)} className="relative mt-10 w-full max-w-sm sm:max-w-md">
-            <div className="halo pointer-events-none absolute -inset-4 rounded-[2rem] bg-coral/25 blur-2xl" aria-hidden="true" />
-            <div className="drift relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-white/70 bg-warm shadow-card ring-1 ring-navy/[0.06]">
-              {/* Replace this block with Sonali's real photo or a looping video.
-                  e.g. <Image src="/sonali-hero.jpg" alt="Sonali Badani" fill className="object-cover" /> */}
-              <div className="grid h-full place-items-center px-6 text-center">
-                <div>
-                  <PlayCircle className="mx-auto h-12 w-12 text-coral" strokeWidth={1.4} />
-                  <p className="mt-4 font-serif text-2xl text-navy">Sonali Badani</p>
-                  <p className="mt-2 font-body text-[11.5px] uppercase tracking-[0.18em] text-navy/45">
-                    Hero photo or video → /public/sonali-hero
-                  </p>
-                </div>
-              </div>
-            </div>
-            <Sparkle twinkle className="absolute -left-3 top-10 h-5 w-5 text-gold" />
-            <Sparkle twinkle className="absolute -right-2 bottom-14 h-4 w-4 text-gold/80" />
+          {/* 5 · One big CTA, with a glowing gold line beneath (hierarchy ref;
+              our palette). The offer line is gone; the price rides on the button. */}
+          <div {...up(420)} className="mt-9 w-full max-w-md">
+            <AccessButton
+              label="Get Instant Access · ₹497"
+              className="w-full px-8 py-5 text-[16.5px] sm:py-6 sm:text-[18px]"
+            />
+            <div
+              aria-hidden="true"
+              className="mx-auto mt-7 h-[1.5px] w-4/5 max-w-xs rounded-full bg-gradient-to-r from-transparent via-gold to-transparent shadow-[0_0_26px_4px_rgba(194,163,107,0.8)]"
+            />
           </div>
 
-          {/* 6 · Offer + button */}
-          <p {...up(480)} className="mt-9 font-body text-[15px] font-semibold text-navy">
-            Get instant access today for <span className="mark">₹497</span>. Everything below is included.
-          </p>
-          <div {...up(540)} className="mt-4">
-            <AccessButton label={HERO.cta} />
-          </div>
-          <p
-            {...up(600)}
-            className="mt-3 flex items-center gap-2 font-body text-[13.5px] text-navy/60"
+          {/* 6 · Trust badges row (hierarchy ref; our facts + palette) */}
+          <ul
+            {...up(520)}
+            className="mt-5 grid grid-cols-2 gap-x-5 gap-y-2.5 font-body text-[12.5px] text-navy/60 sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-5"
           >
-            <ShieldCheck className="h-4 w-4 text-coral-dark" />
-            {HERO.guarantee}
-          </p>
+            <li className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-coral-dark" />
+              <span>
+                <span className="font-semibold text-navy">14-day</span> guarantee
+              </span>
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Zap className="h-4 w-4 shrink-0 text-coral-dark" />
+              <span>
+                <span className="font-semibold text-navy">Instant</span> access
+              </span>
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Lock className="h-4 w-4 shrink-0 text-coral-dark" />
+              <span>Secure checkout</span>
+            </li>
+            <li className="flex items-center gap-1.5">
+              <Sparkle className="h-3.5 w-3.5 shrink-0 text-gold" />
+              <span>
+                <span className="font-semibold text-navy">Launch price</span> · first 100
+              </span>
+            </li>
+          </ul>
 
+          {/* 7 · Hero image — landscape product shot (mobile + desktop) */}
+          <SectionMedia
+            src="/Hero-Image/sonali-hero-image4.png"
+            alt="Sonali Badani with The One Partner Reset book suite"
+            aspect="aspect-[3/2]"
+            priority
+            reveal={false}
+            sizes="(max-width: 768px) 100vw, 720px"
+            className="drift mt-11 w-full max-w-2xl"
+          />
+
+          {/* 8 · Volume trust bar */}
           <p
             {...up(660)}
-            className="mt-7 flex items-center gap-3 border-t border-navy/10 pt-5 font-body text-[12.5px] font-semibold uppercase tracking-[0.14em] text-navy/55"
+            className="mt-9 flex items-center gap-3 border-t border-navy/10 pt-5 font-body text-[12.5px] font-semibold uppercase tracking-[0.14em] text-navy/55"
           >
             {HERO.trustBar}
           </p>
