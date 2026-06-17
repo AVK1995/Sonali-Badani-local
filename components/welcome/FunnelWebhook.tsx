@@ -8,13 +8,27 @@ import { buildHashedFields } from '@/lib/meta-capi';
 const cleanParam = (value: string | null) =>
   value && !/^\{\{.*\}\}$/.test(value) ? value : '';
 
+/** Ask our own API route for the caller's IP (the browser can't read it). */
+async function fetchClientIp(): Promise<string> {
+  try {
+    const res = await fetch('/api/ip', { cache: 'no-store' });
+    if (!res.ok) return '';
+    const data = (await res.json()) as { ip?: string };
+    return typeof data.ip === 'string' ? data.ip : '';
+  } catch {
+    return '';
+  }
+}
+
 const PABBLY_WEBHOOK_URL = process.env.NEXT_PUBLIC_PABBLY_WEBHOOK_URL;
 
 /**
  * Invisible welcome-page dispatcher. After the TagMango redirect lands on
- * /welcome, it merges the cached lead data with the email + order_id appended by
- * TagMango, posts one unified payload to the Pabbly webhook, then clears the
- * cache. Renders nothing.
+ * /welcome, it merges the cached lead with: the transaction ids from the
+ * redirect, the SHA-256 versions of Meta's hashed parameters, and the
+ * event/environment fields captured live here (no landing-URL dependency).
+ * Posts one unified payload to the Pabbly webhook, then clears the cache and
+ * scrubs the address bar. Renders nothing.
  */
 export default function FunnelWebhook() {
   // Guards a second fire across re-renders (and StrictMode's dev double-mount,
@@ -42,6 +56,8 @@ export default function FunnelWebhook() {
     const params = new URLSearchParams(window.location.search);
     const orderId = cleanParam(params.get('order_id'));
     const paymentId = cleanParam(params.get('razorpay_payment_id'));
+    // Clean URL (no query) used for event_source_url and for the address-bar scrub.
+    const cleanUrl = window.location.origin + window.location.pathname;
 
     const restoreForRetry = () => {
       hasFired.current = false;
@@ -50,12 +66,24 @@ export default function FunnelWebhook() {
 
     (async () => {
       try {
-        // Contact details were captured on the OTO page and already live in
-        // `lead` (raw, for nurturing/manual use). Add the SHA-256 versions of
-        // Meta's hashed parameters and the transaction ids from the redirect.
-        const hashed = await buildHashedFields(lead as Record<string, string>);
+        // Hashed Meta fields + the client IP (server-read), in parallel.
+        const [hashed, clientIp] = await Promise.all([
+          buildHashedFields(lead as Record<string, string>),
+          fetchClientIp(),
+        ]);
+
+        // Event/environment fields from real live sources (never the ad URL).
+        const event = {
+          created_at: lead.created_at || new Date().toISOString(),
+          client_user_agent: navigator.userAgent,
+          event_source_url: cleanUrl,
+          client_ip_address: clientIp,
+          purchase_event_id: paymentId, // razorpay payment id = CAPI dedup key
+        };
+
         const payload = {
           ...lead,
+          ...event,
           ...hashed,
           order_id: orderId,
           razorpay_payment_id: paymentId,
@@ -67,8 +95,13 @@ export default function FunnelWebhook() {
           body: JSON.stringify(payload),
           keepalive: true,
         });
-        // Clean up only on a successful response; otherwise keep it for a retry.
-        if (!res.ok) restoreForRetry();
+
+        if (res.ok) {
+          // Drop razorpay_signature and the rest of the query from the address bar.
+          window.history.replaceState({}, '', cleanUrl);
+        } else {
+          restoreForRetry();
+        }
       } catch {
         restoreForRetry();
       }
