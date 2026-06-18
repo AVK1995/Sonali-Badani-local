@@ -57,7 +57,7 @@ export default function TermsPage() {
       <h2>Contact</h2>
       <p>
         For any questions, email{' '}
-        <a href="mailto:support@thesoulspace.in">support@thesoulspace.in</a>.
+        <a href="mailto:connect@sonalibadani.com">connect@sonalibadani.com</a>.
       </p>
     </LegalPageLayout>
   );

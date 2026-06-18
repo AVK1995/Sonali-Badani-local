@@ -8,28 +8,30 @@ export default function MeetSonali() {
   return (
     <Section tint>
       <div className="container-page">
-        <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
-          {/* Portrait — Sonali, in her own space */}
+        {/* Heading on top, so the eyebrow + name sit above the photo on mobile */}
+        <Reveal className="text-center">
+          <p className="mb-3 flex items-center justify-center gap-2">
+            <Sparkle twinkle className="h-3 w-3 text-gold" />
+            <span className="eyebrow">Meet Sonali</span>
+          </p>
+          <h2 className="text-balance text-[28px] font-semibold leading-tight sm:text-[36px] lg:text-[40px]">
+            {MEET_SONALI.name}
+          </h2>
+        </Reveal>
+
+        <div className="mx-auto mt-10 grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
+          {/* Portrait — Sonali */}
           <SectionMedia
-            src="/Hero-Image/sonali-hero-image2.jpeg"
-            alt="Sonali Badani at her desk, founder of The Soul Space"
-            sizes="(max-width: 1024px) 100vw, 540px"
-            className="order-1"
+            src="/Hero-Image/sonali-main-hero-image.JPG"
+            alt="Sonali Badani, Marriage Architect and founder of The Soul Space"
+            aspect="aspect-[4/5]"
+            sizes="(max-width: 1024px) 100vw, 460px"
+            className="order-1 mx-auto w-full max-w-sm lg:max-w-none"
           />
 
           {/* Bio */}
           <div className="order-2 text-center lg:text-left">
             <Reveal>
-              <p className="mb-3 flex items-center justify-center gap-2 lg:justify-start">
-                <Sparkle twinkle className="h-3 w-3 text-gold" />
-                <span className="eyebrow">Meet Sonali</span>
-              </p>
-              <h2 className="text-balance text-[28px] font-semibold leading-tight sm:text-[36px] lg:text-[40px]">
-                {MEET_SONALI.name}
-              </h2>
-            </Reveal>
-
-            <Reveal className="mt-5">
               <p className="font-body text-[15px] font-semibold text-coral-dark sm:text-[16.5px]">
                 {MEET_SONALI.title}
               </p>

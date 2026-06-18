@@ -18,7 +18,7 @@ export default function RefundPolicyPage() {
       <h2>How to request a refund</h2>
       <ul>
         <li>
-          Email <a href="mailto:support@thesoulspace.in">support@thesoulspace.in</a> within 14 days
+          Email <a href="mailto:connect@sonalibadani.com">connect@sonalibadani.com</a> within 14 days
           of your purchase.
         </li>
         <li>Use the same email address you used at checkout.</li>
@@ -34,7 +34,7 @@ export default function RefundPolicyPage() {
       <h2>Contact</h2>
       <p>
         Questions about a refund? Email{' '}
-        <a href="mailto:support@thesoulspace.in">support@thesoulspace.in</a>.
+        <a href="mailto:connect@sonalibadani.com">connect@sonalibadani.com</a>.
       </p>
     </LegalPageLayout>
   );

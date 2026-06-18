@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { FUNNEL_STORAGE_KEY, type FunnelLeadData } from '@/lib/tracking';
+import { FUNNEL_STORAGE_KEY, type FunnelLeadData, resolveFbIdentifiers } from '@/lib/tracking';
 import { buildHashedFields } from '@/lib/meta-capi';
 
 /** Treat an unresolved merge tag (e.g. literal "{{email}}") as empty. */
@@ -81,10 +81,17 @@ export default function FunnelWebhook() {
           purchase_event_id: paymentId, // razorpay payment id = CAPI dedup key
         };
 
+        // Meta click/browser ids from the real first-party cookies (the high-EMQ
+        // signals). These overwrite the landing-URL values, which are usually
+        // empty because _fbc/_fbp are cookies, not query params.
+        const { fbc, fbp } = resolveFbIdentifiers(lead.fbclid);
+
         const payload = {
           ...lead,
           ...event,
           ...hashed,
+          fbc: fbc || lead.fbc || '',
+          fbp: fbp || lead.fbp || '',
           order_id: orderId,
           razorpay_payment_id: paymentId,
         };

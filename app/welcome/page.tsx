@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { CalendarHeart } from 'lucide-react';
 
 import Logo from '@/components/ui/Logo';
@@ -104,6 +105,18 @@ export default function WelcomePage() {
             <div className="mt-10">
               <CalendlyEmbed />
             </div>
+
+            {/* Skip booking — quiet hairline link through to your access page */}
+            <Reveal className="mt-9 text-center">
+              <Link
+                href="/thank-you"
+                className="inline-flex items-center gap-3 font-body text-[13.5px] text-navy/50 transition-colors hover:text-navy/80"
+              >
+                <span className="h-px w-7 bg-navy/20" aria-hidden="true" />
+                I don&rsquo;t want to book my call
+                <span className="h-px w-7 bg-navy/20" aria-hidden="true" />
+              </Link>
+            </Reveal>
           </div>
         </section>
       </main>

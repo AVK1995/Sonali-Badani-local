@@ -21,6 +21,11 @@ next-env.d.ts
 .DS_Store
 *.pem
 
+# Large bonus media — delivered via Google Drive, not served by the site.
+# (GitHub rejects files over 100MB; these are ~119MB and ~878MB.)
+public/Solani Bonuses/*.mp4
+public/Solani Bonuses/*.wav
+
 # debug
 npm-debug.log*
 yarn-debug.log*

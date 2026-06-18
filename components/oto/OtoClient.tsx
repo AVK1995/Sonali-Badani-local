@@ -5,6 +5,7 @@ import Image from 'next/image';
 import {
   Check,
   ArrowRight,
+  Play,
   Headphones,
   Lock,
   ShieldCheck,
@@ -36,7 +37,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export default function OtoClient() {
   const [added, setAdded] = useState<boolean>(OTO_CONFIG.addonDefaultSelected);
-  const [addonOpen, setAddonOpen] = useState(false); // expanded on desktop via lg:, collapsed on mobile
+  const [addonOpen, setAddonOpen] = useState(true); // expanded by default; can be minimised on mobile
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [dialCode, setDialCode] = useState('+91'); // default India
@@ -133,8 +134,8 @@ export default function OtoClient() {
 
   // ── Cards (defined once, placed into the two columns below) ──────────────
   const offerCard = (
-    <Reveal className="overflow-hidden rounded-3xl border border-navy/10 bg-white shadow-card">
-      <div className="relative h-28 overflow-hidden border-b border-navy/[0.06] bg-cream sm:h-44 lg:h-auto lg:aspect-[16/9]">
+    <Reveal className="overflow-hidden rounded-3xl border border-navy/10 bg-white shadow-card lg:flex lg:flex-col">
+      <div className="relative aspect-[3/2] overflow-hidden border-b border-navy/[0.06] bg-cream lg:aspect-[16/9]">
         <Image
           src={OTO_CONFIG.images.product}
           alt="The One Partner Reset full book suite"
@@ -148,35 +149,37 @@ export default function OtoClient() {
         </span>
       </div>
 
-      <div className="p-4 sm:p-6 lg:p-7">
-        <h2 className="font-serif text-[21px] font-semibold leading-snug text-navy sm:text-[24px] lg:text-[26px]">
-          {OTO.product.name}
-        </h2>
-        <p className="mt-1 font-body text-[13.5px] leading-relaxed text-navy/70 sm:text-[14px]">
-          {OTO.product.tagline}
-        </p>
+      <div className="p-4 sm:p-6 lg:flex lg:flex-1 lg:flex-col lg:p-7">
+        <div className="lg:flex lg:flex-1 lg:flex-col lg:justify-center">
+          <h2 className="font-serif text-[21px] font-semibold leading-snug text-navy sm:text-[24px] lg:text-[26px]">
+            {OTO.product.name}
+          </h2>
+          <p className="mt-1 font-body text-[13.5px] leading-relaxed text-navy/70 sm:text-[14px] lg:text-[15px]">
+            {OTO.product.tagline}
+          </p>
 
-        {/* Mobile/tablet: one compact line */}
-        <p className="mt-3 font-body text-[13px] leading-relaxed text-navy/75 lg:hidden">
-          {OTO.product.includesShort}
-        </p>
+          {/* Mobile/tablet: one compact line */}
+          <p className="mt-3 font-body text-[13px] leading-relaxed text-navy/75 lg:hidden">
+            {OTO.product.includesShort}
+          </p>
 
-        {/* Desktop: the full itemised list */}
-        <ul className="mt-5 hidden space-y-2.5 lg:block">
-          {OTO.product.includes.map((item) => (
-            <li
-              key={item}
-              className="flex items-start gap-2.5 font-body text-[14.5px] leading-relaxed text-navy/85"
-            >
-              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-coral/15">
-                <Check className="h-3 w-3 text-coral-dark" strokeWidth={3} />
-              </span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
+          {/* Desktop: the itemised list (kept short so the bonus carries the page) */}
+          <ul className="mt-6 hidden space-y-3.5 lg:block">
+            {OTO.product.includes.map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-3 font-body text-[15.5px] leading-relaxed text-navy/85"
+              >
+                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-coral/15">
+                  <Check className="h-3 w-3 text-coral-dark" strokeWidth={3} />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <div className="mt-4 flex items-end justify-between gap-4 border-t border-navy/10 pt-3.5 lg:mt-6 lg:pt-4">
+        <div className="mt-6 flex items-end justify-between gap-4 border-t border-navy/10 pt-3.5 lg:mt-0 lg:pt-4">
           <div>
             <span className="font-body text-[11.5px] font-semibold uppercase tracking-[0.14em] text-coral-dark">
               Included today
@@ -265,7 +268,7 @@ export default function OtoClient() {
     <Reveal variant="scale" className="relative">
       <div
         aria-hidden="true"
-        className="halo pointer-events-none absolute -inset-3 -z-10 rounded-[2rem] bg-coral/12 blur-2xl"
+        className="halo pointer-events-none absolute -inset-3 -z-10 rounded-[2.25rem] bg-coral/15 blur-2xl"
       />
       <div
         className={`overflow-hidden rounded-3xl border-2 bg-white shadow-card transition-colors duration-300 ${
@@ -294,42 +297,100 @@ export default function OtoClient() {
             />
           </div>
 
-          {/* Always-visible compact summary (kicker + title + price) */}
-          <div className="px-5 pt-4">
-            <div className="flex items-center justify-between gap-2">
+          {/* Always-visible teaser: category + title + price + lifetime note */}
+          <div className="flex items-start justify-between gap-3 px-5 pt-4">
+            <div>
               <span className="flex items-center gap-1.5 font-body text-[10.5px] font-bold uppercase tracking-[0.14em] text-coral-dark">
                 <Headphones className="h-3.5 w-3.5" strokeWidth={2.2} />
-                Guided meditation
+                {OTO.addon.kicker}
               </span>
-              <span className="font-serif text-[18px] font-semibold text-navy">
+              <h3 className="mt-1.5 font-serif text-[19px] font-semibold leading-snug text-navy sm:text-[22px]">
+                {OTO.addon.name}
+              </h3>
+            </div>
+            <div className="shrink-0 text-right">
+              <span className="font-serif text-[20px] font-semibold leading-none text-navy">
                 {OTO.addon.priceLabel}
               </span>
+              <p className="mt-1 font-body text-[9.5px] font-bold uppercase tracking-[0.1em] text-coral-dark">
+                {OTO.addon.valueNote}
+              </p>
             </div>
-            <h3 className="mt-1 font-serif text-[18px] font-semibold leading-snug text-navy sm:text-[20px]">
-              {OTO.addon.name}
-            </h3>
           </div>
         </button>
 
         {/* Collapsible details — always shown on desktop (lg:block) */}
         <div className={`px-5 pb-1 ${addonOpen ? 'block' : 'hidden'} lg:block`}>
-          <div className="mt-3 grid grid-cols-[100px_1fr] items-start gap-4 sm:grid-cols-[112px_1fr]">
-            <div className="relative aspect-[3/4] w-full self-start overflow-hidden rounded-xl border border-white/70 bg-cream shadow-soft ring-1 ring-gold/15">
+          {/* Product shot (with play overlay) + the emotional hook */}
+          <div className="mt-4 grid grid-cols-[124px_1fr] items-start gap-4 sm:grid-cols-[132px_1fr]">
+            <div className="relative aspect-[3/4] w-full self-start overflow-hidden rounded-xl border border-white/70 bg-cream shadow-soft ring-1 ring-gold/20">
               <Image
                 src={OTO_CONFIG.images.addon}
-                alt="The Love Legacy Visualization"
+                alt="The Love Legacy Visualization guided meditation"
                 fill
-                sizes="(max-width: 640px) 100px, 112px"
+                sizes="(max-width: 640px) 124px, 132px"
                 className="object-cover object-center"
               />
-              <Sparkle twinkle className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 text-gold" />
+              {/* Play overlay signals the video you watch the first time */}
+              <span className="absolute inset-0 grid place-items-center">
+                <span className="play-pulse grid h-11 w-11 place-items-center rounded-full border-[3px] border-white/75 bg-coral text-white">
+                  <Play className="ml-0.5 h-4 w-4 fill-current" strokeWidth={0} />
+                </span>
+              </span>
+              <Sparkle twinkle className="absolute -right-1.5 -top-1.5 h-4 w-4 text-gold" />
             </div>
-            <p className="font-body text-[12.5px] leading-relaxed text-navy/70">
-              {OTO.addon.tagline}
-            </p>
+
+            <div>
+              <div className="flex flex-wrap gap-1.5">
+                {OTO.addon.meta.map((m) => (
+                  <span
+                    key={m}
+                    className="rounded-full border border-navy/10 bg-warm px-2.5 py-0.5 font-body text-[10.5px] font-semibold text-navy/70"
+                  >
+                    {m}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2.5 font-body text-[12.5px] leading-relaxed text-navy/75">
+                {OTO.addon.tagline}
+              </p>
+            </div>
           </div>
 
-          <ul className="mt-3 space-y-1.5 pb-3">
+          {/* How it works: watch once, then listen for life */}
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {OTO.addon.how.map((step, i) => (
+              <div key={step.title} className="rounded-xl border border-navy/[0.06] bg-cream p-3">
+                <div className="flex items-center gap-2">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-coral/15 text-coral-dark">
+                    {i === 0 ? (
+                      <Play className="ml-px h-3 w-3 fill-current" strokeWidth={0} />
+                    ) : (
+                      <Headphones className="h-3.5 w-3.5" strokeWidth={2.2} />
+                    )}
+                  </span>
+                  <p className="font-body text-[12px] font-bold text-navy">{step.title}</p>
+                </div>
+                <p className="mt-1.5 font-body text-[11.5px] leading-relaxed text-navy/65">
+                  {step.body}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* A line you will carry from the meditation */}
+          <figure className="relative mt-4 rounded-xl border border-gold/25 bg-warm px-4 py-3">
+            <Sparkle className="absolute -left-1.5 -top-1.5 h-3.5 w-3.5 text-gold" />
+            <blockquote className="font-serif text-[15px] italic leading-snug text-navy/85">
+              {OTO.addon.quote}
+            </blockquote>
+            <figcaption className="mt-1 font-body text-[10px] uppercase tracking-[0.14em] text-navy/45">
+              {OTO.addon.quoteCaption}
+            </figcaption>
+          </figure>
+
+          {/* What it does for you */}
+          <ul className="mt-4 space-y-1.5 pb-3">
             {OTO.addon.points.map((p) => (
               <li
                 key={p}
@@ -427,17 +488,14 @@ export default function OtoClient() {
 
   return (
     <>
-      <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-2 lg:items-start">
-        {/* LEFT · main offer then the form */}
-        <div className="space-y-6">
-          {offerCard}
-          {formCard}
-        </div>
-        {/* RIGHT · add-on then pay, packed together and pinned in view */}
-        <div className="space-y-6 lg:sticky lg:top-24">
-          {addonCard}
-          {payCard}
-        </div>
+      {/* Flat grid: on mobile the cards stack in DOM order (offer, add-on, form,
+          pay); on desktop the 2-col row flow restores LEFT [offer, form] /
+          RIGHT [add-on, pay]. */}
+      <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-2 lg:items-stretch">
+        {offerCard}
+        {addonCard}
+        {formCard}
+        {payCard}
       </div>
 
       {/* Sticky bottom Continue bar — always visible below the desktop layout */}

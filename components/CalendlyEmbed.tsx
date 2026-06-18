@@ -5,10 +5,18 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * Calendly inline embed. The widget script is loaded lazily only when the embed
  * scrolls into view, so it never blocks initial page load or hurts Lighthouse.
- * Set NEXT_PUBLIC_CALENDLY_URL in the environment to activate it.
+ * Defaults to Sonali's live scheduler; override with NEXT_PUBLIC_CALENDLY_URL.
  */
+const DEFAULT_CALENDLY_URL = 'https://calendly.com/connect-sonalibadani/30-min-meeting';
+
+// Where to send the invitee the moment their booking completes. We drive this
+// redirect ourselves (see the calendly.event_scheduled listener below) so the
+// invitee lands straight on the Thank You page, skipping Calendly's own
+// "You are leaving Calendly" interstitial.
+const THANK_YOU_PATH = '/thank-you';
+
 export default function CalendlyEmbed() {
-  const url = process.env.NEXT_PUBLIC_CALENDLY_URL;
+  const url = process.env.NEXT_PUBLIC_CALENDLY_URL || DEFAULT_CALENDLY_URL;
   const ref = useRef<HTMLDivElement | null>(null);
   const [load, setLoad] = useState(false);
 
@@ -38,6 +46,21 @@ export default function CalendlyEmbed() {
     script.dataset.calendly = 'true';
     document.body.appendChild(script);
   }, [load, url]);
+
+  // Calendly posts a message to the parent window when a booking completes.
+  // We catch it and redirect to the Thank You page ourselves, which avoids the
+  // Calendly link-safety interstitial that appears with its built-in redirect.
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (e.origin !== 'https://calendly.com') return;
+      const data = e.data as { event?: string };
+      if (data?.event === 'calendly.event_scheduled') {
+        window.location.assign(THANK_YOU_PATH);
+      }
+    }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   return (
     <div

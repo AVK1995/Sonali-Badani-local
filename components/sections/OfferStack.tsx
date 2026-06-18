@@ -12,13 +12,17 @@ import { OFFER_VARIANT } from '@/lib/flags';
 // Numeric value behind the displayed "₹12,500" total, for the count-up.
 const VALUE_TOTAL_NUM = Number(VALUE_STACK.total.replace(/[^\d]/g, ''));
 
-// Bonus cover images (user-provided). Bonuses 3-5 show a placeholder until their
-// covers arrive; the layout stays identical so they drop straight in. Dimensions
-// reserve space so cards don't reflow as images lazy-load.
-// next/image encodes the URL itself, so these use literal spaces (not %20).
+// Bonus cover images (user-provided). Mapped to each bonus BY CONTENT, not by
+// filename: the sonali-bonus-N files do not line up with the bonus numbers
+// (bonus-3.png is the Happiness Blueprint = bonus 4; bonus-4.jpeg is the
+// Relationship Clarity Assessment = bonus 3). next/image encodes the URL itself,
+// so these use literal spaces (not %20).
 const BONUS_IMAGES: Record<number, { src: string }> = {
-  1: { src: '/Solani Bonuses/Affirmations.png' },
-  2: { src: '/Solani Bonuses/sonali-bonus-2.png' },
+  1: { src: '/Solani Bonuses/Affirmations.png' }, // 50 Marriage Affirmations
+  2: { src: '/Solani Bonuses/sonali-bonus-2.png' }, // The Love Legacy Manifesto
+  3: { src: '/Solani Bonuses/sonali-bonus-4.jpeg' }, // The Relationship Clarity Assessment
+  4: { src: '/Solani Bonuses/sonali-bonus-3.png' }, // The Happiness Blueprint
+  5: { src: '/Solani Bonuses/sonali-bonus-5.jpeg' }, // The Private Love Legacy Community
 };
 
 // Map each bonus to its rupee value from the value stack (matched by name).
@@ -99,10 +103,11 @@ function TierLabel({ children }: { children: React.ReactNode }) {
 function VersionBStack() {
   return (
     <div className="mx-auto mt-12 max-w-4xl">
-      {/* The core experience */}
+      {/* The core experience. Only the first item is shown (all viewports);
+          the bonuses begin right after it. */}
       <TierLabel>The core experience</TierLabel>
       <div className="space-y-3.5">
-        {OFFER_CORE.map((item, i) => (
+        {OFFER_CORE.slice(0, 1).map((item, i) => (
           <Reveal
             key={item.name}
             delay={Math.min(i * 50, 250)}
@@ -178,7 +183,7 @@ export default function OfferStack() {
 
         {/* The whole suite, shown in full — every book and tool you receive today. */}
         <SectionMedia
-          src="/Section-Images/section-image9.png"
+          src="/Section-Images/section-image10.png"
           alt="The One Partner Reset book suite laid out in full"
           aspect="aspect-[3/2]"
           sizes="(max-width: 1024px) 100vw, 880px"

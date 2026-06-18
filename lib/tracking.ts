@@ -48,3 +48,26 @@ export function splitName(fullName: string): { first_name: string; last_name: st
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   return { first_name: parts[0] ?? '', last_name: parts.slice(1).join(' ') };
 }
+
+/** Read a cookie value by name (browser only; '' on the server or if absent). */
+function readCookie(name: string): string {
+  if (typeof document === 'undefined') return '';
+  const escaped = name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1');
+  const match = document.cookie.match(new RegExp('(?:^|; )' + escaped + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : '';
+}
+
+/**
+ * Resolve Meta's click/browser identifiers for high Event Match Quality. These
+ * are the biggest EMQ levers and are NOT URL params: the Meta Pixel sets them as
+ * first-party cookies (`_fbp` always; `_fbc` when the landing URL has `fbclid`).
+ * We read those cookies; if `_fbc` is missing but an fbclid is known, we
+ * reconstruct it in Meta's documented `fb.1.<ts>.<fbclid>` format. Never
+ * fabricates — returns '' when there is genuinely nothing to send.
+ */
+export function resolveFbIdentifiers(fbclid?: string): { fbc: string; fbp: string } {
+  const fbp = readCookie('_fbp');
+  let fbc = readCookie('_fbc');
+  if (!fbc && fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`;
+  return { fbc, fbp };
+}

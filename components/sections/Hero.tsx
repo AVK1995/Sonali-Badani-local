@@ -126,7 +126,7 @@ export default function Hero() {
 
           {/* 7 · Hero image — landscape product shot (mobile + desktop) */}
           <SectionMedia
-            src="/Hero-Image/sonali-hero-image4.png"
+            src="/Hero-Image/sonali-hero-image8.png"
             alt="Sonali Badani with The One Partner Reset book suite"
             aspect="aspect-[3/2]"
             priority

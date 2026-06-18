@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Mail, Search, ArrowRight } from 'lucide-react';
+import { Mail, Search, ArrowRight, MessageCircle } from 'lucide-react';
 
 import Logo from '@/components/ui/Logo';
 import Footer from '@/components/Footer';
@@ -12,6 +12,19 @@ export const metadata: Metadata = {
   title: 'Welcome to the One Partner Reset | Sonali Badani',
   robots: { index: false, follow: false },
 };
+
+const WHATSAPP_COMMUNITY_URL = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL || '#';
+
+/** The repeating WhatsApp community CTA (used after the intro and at the close). */
+function CommunityButton() {
+  return (
+    <a href={WHATSAPP_COMMUNITY_URL} target="_blank" rel="noopener noreferrer" className="btn-primary">
+      <MessageCircle className="h-5 w-5" />
+      Join the Community Here
+      <ArrowRight className="h-5 w-5" />
+    </a>
+  );
+}
 
 const EMAIL_CONTAINS = [
   'Your login link and access instructions',
@@ -55,6 +68,27 @@ export default function ThankYouPage() {
           </Reveal>
         </section>
 
+        {/* 1b · Join the community — the primary first action after purchase */}
+        <section className="container-reading pb-12 sm:pb-14">
+          <Reveal
+            variant="scale"
+            className="rounded-3xl border border-coral/40 bg-white px-6 py-8 text-center shadow-card ring-1 ring-coral/15 sm:px-10 sm:py-9"
+          >
+            <p className="eyebrow mb-3">Step 1 · Start here</p>
+            <h2 className="text-[24px] font-semibold sm:text-[30px]">
+              Join the Private Love Legacy Community
+            </h2>
+            <p className="lede mx-auto mt-4 max-w-reading">
+              This is where your reset actually begins. Your live call links and
+              every update happen inside the community, alongside women walking exactly the same path.
+            </p>
+            <div className="mt-7">
+              <CommunityButton />
+            </div>
+            <p className="mt-3 font-body text-[12.5px] text-navy/50">Opens in WhatsApp · one tap to join</p>
+          </Reveal>
+        </section>
+
         <hr className="rule" />
 
         {/* 2 · Check email */}
@@ -73,6 +107,17 @@ export default function ThankYouPage() {
             <div className="mt-7">
               <Checklist items={EMAIL_CONTAINS} columns />
             </div>
+            {/* <div className="mt-7 text-center">
+              <a
+                href="https://app.tagmango.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ghost"
+              >
+                Access Your Course
+                <ArrowRight className="h-5 w-5" />
+              </a>
+            </div> */}
           </Reveal>
         </section>
 
@@ -99,8 +144,8 @@ export default function ThankYouPage() {
                 <Search className="mr-1 inline h-4 w-4 text-coral-dark" />
                 Search your inbox for <span className="font-semibold text-navy">The Soul Space</span>.
                 If you still don&rsquo;t see it after 10 minutes, write to us at{' '}
-                <a href="mailto:support@thesoulspace.in" className="font-semibold text-coral-dark underline underline-offset-2">
-                  support@thesoulspace.in
+                <a href="mailto:connect@sonalibadani.com" className="font-semibold text-coral-dark underline underline-offset-2">
+                  connect@sonalibadani.com
                 </a>
                 .
               </p>
@@ -117,6 +162,9 @@ export default function ThankYouPage() {
                 <span className="eyebrow">Your next steps</span>
               </p>
               <h2 className="text-[24px] font-semibold sm:text-[30px]">Your next steps</h2>
+              <p className="lede mx-auto mt-4 max-w-reading">
+                Once you&rsquo;re inside the community, here&rsquo;s your path from here.
+              </p>
             </Reveal>
 
             <div className="mx-auto mt-10 max-w-3xl divide-y divide-navy/10 border-y border-navy/10">
@@ -161,16 +209,13 @@ export default function ThankYouPage() {
           />
           <div className="container-reading relative">
             <Reveal>
-              <p className="eyebrow mb-3">Your next step</p>
+              <p className="eyebrow mb-3">Don&rsquo;t forget</p>
               <h2 className="text-balance text-[26px] font-semibold sm:text-[34px]">
-                Open your email and begin
+                To join the Private Love Legacy Community
               </h2>
               <p className="lede mt-5">We&rsquo;ll see you inside.</p>
               <div className="mt-8">
-                <a href="https://app.tagmango.com" target="_blank" rel="noopener noreferrer" className="btn-primary">
-                  Access Your Course
-                  <ArrowRight className="h-5 w-5" />
-                </a>
+                <CommunityButton />
               </div>
             </Reveal>
           </div>

@@ -336,6 +336,23 @@
   animation: halo 5.5s ease-in-out infinite;
 }
 
+/* Play button on the visualization bonus — gentle breathing + soft ripple glow.
+   (Frozen automatically under the prefers-reduced-motion block below.) */
+@keyframes play-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 6px 18px -4px rgba(229, 121, 92, 0.6), 0 0 0 0 rgba(245, 144, 117, 0.5);
+  }
+  50% {
+    transform: scale(1.07);
+    box-shadow: 0 8px 22px -4px rgba(229, 121, 92, 0.7), 0 0 0 9px rgba(245, 144, 117, 0);
+  }
+}
+.play-pulse {
+  animation: play-breathe 2.4s ease-in-out infinite;
+}
+
 /* Infinite testimonial marquee (mobile). Two copies of the track translate
    -50% so the loop is seamless. No pause on hover, by request. */
 @keyframes marquee {

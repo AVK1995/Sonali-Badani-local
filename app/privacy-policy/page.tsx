@@ -45,13 +45,13 @@ export default function PrivacyPolicyPage() {
       <h2>Your rights</h2>
       <p>
         You may request access to, correction of, or deletion of your personal data at any time by
-        writing to <a href="mailto:support@thesoulspace.in">support@thesoulspace.in</a>.
+        writing to <a href="mailto:connect@sonalibadani.com">connect@sonalibadani.com</a>.
       </p>
 
       <h2>Contact</h2>
       <p>
         Questions about this policy? Email{' '}
-        <a href="mailto:support@thesoulspace.in">support@thesoulspace.in</a>.
+        <a href="mailto:connect@sonalibadani.com">connect@sonalibadani.com</a>.
       </p>
     </LegalPageLayout>
   );

@@ -3,6 +3,7 @@ import { Fraunces, Mulish } from 'next/font/google';
 import Script from 'next/script';
 import { CHECKOUT_CONFIG } from '@/lib/checkout-config';
 import SmoothScroll from '@/components/SmoothScroll';
+import MetaPixel from '@/components/MetaPixel';
 import './globals.css';
 
 /**
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="font-body bg-cream text-navy antialiased">
         <SmoothScroll />
+        <MetaPixel />
         {children}
 
         {/* Razorpay checkout — lazy-loaded so it never blocks first paint. */}
