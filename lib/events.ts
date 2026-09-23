@@ -23,6 +23,8 @@ import { isProductionBrowser } from './production-gate';
  *   CompleteRegistration form submitted           CAPI + GA4
  *   Lead                 form submitted           CAPI + GA4   (kept for any
  *                                                 campaign still optimising to it)
+ *   QualifiedLead        form submitted, ONLY if  CAPI + GA4
+ *                        Q1 and Q2 both pass
  *   oto_reset_plus_add   P2, add-on switched on   CAPI + GA4
  *   oto_reset_cta        P2, yes at the base price     CAPI + GA4
  *   oto_reset_plus_cta   P2, yes with the add-on       CAPI + GA4
@@ -163,7 +165,7 @@ export const trackRegistrationStep = (step: number) =>
  * `CompleteRegistration` is the semantically correct one, and `Lead` is kept so
  * any campaign already optimising toward Lead keeps its delivery.
  */
-export function trackRegistration(leadId?: string) {
+export function trackRegistration(leadId?: string, qualified = false) {
   const base = leadId || eventId('reg').replace(/_reg$/, '');
   const params = {
     content_name: `${MASTERCLASS_NAME} registration`,
@@ -174,6 +176,24 @@ export function trackRegistration(leadId?: string) {
   void toMeta('Lead', `${base}_lead`, params);
   toGa4('CompleteRegistration', params);
   toGa4('Lead', params);
+
+  /**
+   * The third event, and only for a registrant who passed both gates on Q1 and
+   * Q2. See lib/qualification.ts.
+   *
+   * Fired here rather than on the question itself, so it lands with the same
+   * matching data as the other two: email, phone, name, city, fbp, fbc, IP and
+   * user agent are all known by this point. Firing it at the moment she
+   * answered Q2 would have sent it with almost nothing to match on.
+   *
+   * It is an ADDITION, never a replacement. A qualified woman produces all
+   * three events, which keeps any campaign already optimising toward Lead or
+   * CompleteRegistration untouched.
+   */
+  if (qualified) {
+    void toMeta('QualifiedLead', `${base}_qlead`, params);
+    toGa4('QualifiedLead', params);
+  }
 }
 
 /* ── P2, the upgrade page ─────────────────────────────────────────────────── */

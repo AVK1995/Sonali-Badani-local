@@ -10,11 +10,58 @@ import { FORM } from '@/lib/webinar-content';
 import { DAY_TIME_IST } from '@/lib/webinar-config';
 import { submitRegistration } from '@/lib/registration';
 import { trackRegistration, trackRegistrationStep } from '@/lib/events';
+import { isQualified } from '@/lib/qualification';
 import { pauseSmoothScroll, resumeSmoothScroll } from '@/lib/smooth-scroll';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * One tappable answer on Q1 or Q2.
+ *
+ * `role="radio"` with `aria-checked` rather than a real input, because a native
+ * radio on a phone is a target a few pixels wide and this is the first thing she
+ * touches. The whole 52px row is the target instead, and screen readers still
+ * announce it as a radio in a group.
+ */
+function ChoiceButton({
+  label,
+  chosen,
+  onClick,
+}: {
+  label: string;
+  chosen: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={chosen}
+      onClick={onClick}
+      className={`flex min-h-[52px] items-center gap-3 rounded-xl border-2 px-4 py-3 text-left font-body text-[15px] font-medium transition-colors ${
+        chosen
+          ? 'border-coral bg-coral/[0.12] text-navy'
+          : 'border-navy/15 bg-white text-navy/80 hover:border-coral/40'
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition-colors ${
+          chosen ? 'border-coral bg-coral text-navy' : 'border-navy/25 bg-white'
+        }`}
+      >
+        {chosen && <Check className="h-3 w-3" strokeWidth={3.5} />}
+      </span>
+      {label}
+    </button>
+  );
+}
+
 type Values = {
+  occupation: string;
+  /** Free text, only used when `occupation` is the Other option. */
+  occupationOther: string;
+  readiness: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -27,14 +74,19 @@ type Errors = Partial<Record<FieldKey, string>>;
 
 /** Which fields belong to which step, so validation gates one step at a time. */
 const STEP_FIELDS: FieldKey[][] = [
-  ['firstName', 'lastName'],
-  ['email', 'phone'],
-  ['city'],
+  ['occupation', 'occupationOther'],
+  ['readiness'],
+  ['firstName', 'lastName', 'email', 'phone', 'city'],
   ['duration'],
 ];
 const LAST_STEP = STEP_FIELDS.length - 1;
 
+const OTHER = FORM.fields.occupation.other.value;
+
 const EMPTY: Values = {
+  occupation: '',
+  occupationOther: '',
+  readiness: '',
   firstName: '',
   lastName: '',
   email: '',
@@ -44,12 +96,27 @@ const EMPTY: Values = {
 };
 
 /**
+ * The delay between tapping a radio option and the step advancing.
+ *
+ * Not zero on purpose. The tap has to be seen to land: the option fills with
+ * coral and the tick appears, and only then does the step move. Advancing
+ * instantly reads as a glitch and leaves her unsure what she picked, which
+ * matters most on Q1 where the answer decides the qualification gate.
+ */
+const AUTO_ADVANCE_MS = 260;
+
+/**
  * The registration form, as a four step modal.
  *
- * Step 1  First name, Last name
- * Step 2  Email, WhatsApp number
- * Step 3  City
- * Step 4  How long the marriage has felt this way, plus a recap
+ * Step 1  What best describes you?          one tap, auto advances
+ * Step 2  Are you willing to transform?       one tap, auto advances
+ * Step 3  First name, Last name, Email, WhatsApp, City
+ * Step 4  How long the marriage has felt this way, plus the WhatsApp tick
+ *
+ * The two questions lead because they cost one tap each, so the form opens
+ * without a keyboard. They also decide the qualification gate, which sets
+ * `status` on the webhook and whether the `QualifiedLead` Meta event fires.
+ * See lib/qualification.ts.
  *
  * Mobile is the design target: it opens as a bottom sheet that fills the screen
  * on a phone and becomes a centred dialog from `sm` up. One question group per
@@ -147,6 +214,16 @@ export default function RegistrationModal({
   const validateField = useCallback(
     (key: FieldKey, v: Values): string | undefined => {
       switch (key) {
+        case 'occupation':
+          return v.occupation ? undefined : FORM.errors.occupation;
+        case 'occupationOther':
+          // Only required when she chose Other; otherwise it is not on screen.
+          if (v.occupation !== OTHER) return undefined;
+          return v.occupationOther.trim().length >= 2
+            ? undefined
+            : FORM.errors.occupationOther;
+        case 'readiness':
+          return v.readiness ? undefined : FORM.errors.readiness;
         case 'firstName':
           return v.firstName.trim().length >= 2 ? undefined : FORM.errors.firstName;
         case 'lastName':
@@ -181,6 +258,45 @@ export default function RegistrationModal({
 
   const blur = (key: FieldKey) =>
     setErrors((prev) => ({ ...prev, [key]: validateField(key, values) }));
+
+  /**
+   * Answering Q1 or Q2 moves her on without a Continue tap.
+   *
+   * The one exception is Other on Q1: choosing it opens a text field, so the
+   * step has to stay put and she taps Continue when she has typed something.
+   *
+   * The timer is cleared on unmount and whenever the step changes, so a fast
+   * tap on Back cannot be overtaken by an advance that was already queued.
+   */
+  const advanceTimer = useRef<number | null>(null);
+  const cancelAutoAdvance = () => {
+    if (advanceTimer.current !== null) {
+      window.clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+  };
+  useEffect(() => cancelAutoAdvance, [step]);
+
+  const chooseAndAdvance = (key: 'occupation' | 'readiness', value: string) => {
+    cancelAutoAdvance();
+    setValues((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: undefined, occupationOther: undefined }));
+
+    // Other needs a typed answer, so it never auto advances.
+    if (key === 'occupation' && value === OTHER) return;
+
+    advanceTimer.current = window.setTimeout(() => {
+      advanceTimer.current = null;
+      setStep((current) => {
+        // Guard against advancing twice, or past the step she is actually on.
+        const expected = key === 'occupation' ? 0 : 1;
+        if (current !== expected) return current;
+        trackRegistrationStep(current + 2);
+        panelRef.current?.scrollTo({ top: 0 });
+        return current + 1;
+      });
+    }, AUTO_ADVANCE_MS);
+  };
 
   /* ── Navigation ───────────────────────────────────────────────────────── */
 
@@ -221,6 +337,7 @@ export default function RegistrationModal({
 
   const goBack = () => {
     if (step === 0) return;
+    cancelAutoAdvance();
     setStep((s) => s - 1);
   };
 
@@ -228,6 +345,13 @@ export default function RegistrationModal({
     if (submittedRef.current) return;
     submittedRef.current = true;
     setSubmitting(true);
+
+    // Other is stored as the text she typed, not the word "Other", so the CRM
+    // row reads as an answer rather than a placeholder. It never qualifies
+    // either way: see lib/qualification.ts.
+    const occupation =
+      values.occupation === OTHER ? values.occupationOther.trim() : values.occupation;
+    const qualified = isQualified(values.occupation, values.readiness);
 
     let leadId = '';
     try {
@@ -240,14 +364,17 @@ export default function RegistrationModal({
         phone: values.phone,
         city: values.city,
         duration: values.duration,
+        occupation,
+        readiness: values.readiness,
       });
     } catch {
       // Deliberately swallowed. She is never blocked on our infrastructure.
     }
 
-    // CompleteRegistration + Lead, both server side. Fired AFTER the lead is
-    // cached, so the CAPI call has her email, phone and city to match on.
-    trackRegistration(leadId || undefined);
+    // CompleteRegistration + Lead, and QualifiedLead on top when both gates
+    // passed. All server side, and fired AFTER the lead is cached so the CAPI
+    // calls have her email, phone, name and city to match on.
+    trackRegistration(leadId || undefined, qualified);
     // Straight to the OTO. No interstitial: this is the single most common
     // build error on this funnel and it is what kills the one time offer.
     router.push('/masterclass/upgrade');
@@ -269,6 +396,14 @@ export default function RegistrationModal({
         : 'border-navy/15 focus:border-navy focus:ring-2 focus:ring-navy/10'
     }`;
   const labelCls = 'mb-1.5 block font-body text-[12.5px] font-semibold tracking-wide text-navy/70';
+  /**
+   * The question on Q1 and Q2 is the whole step, not a field label above an
+   * input, so it gets display weight: serif, navy, and roughly 50% larger. At
+   * the old field-label size it read as fine print above the options and the
+   * eye went straight past it to the buttons.
+   */
+  const questionCls =
+    'mb-3 block font-serif text-[19px] font-semibold leading-snug text-navy sm:text-[21px]';
 
   const ErrorLine = ({ msg }: { msg?: string }) =>
     msg ? (
@@ -373,57 +508,134 @@ export default function RegistrationModal({
 
           {/* key forces a remount per step so the entrance animation replays */}
           <div key={step} className="reg-step mt-5 space-y-4">
+            {/*
+              Q1 and Q2 render as tap targets rather than a native radio group:
+              a real radio on a phone is a tiny circle, and this is the first
+              thing she touches. Chosen state is coral fill plus a tick, held
+              for AUTO_ADVANCE_MS so the answer is seen to land before the step
+              moves.
+            */}
             {step === 0 && (
-              <>
-                <div>
-                  <label htmlFor="reg-first" className={labelCls}>
-                    {FORM.fields.firstName.label}
-                  </label>
-                  <input
-                    id="reg-first"
-                    ref={firstFieldRef}
-                    className={fieldCls(errors.firstName)}
-                    placeholder={FORM.fields.firstName.placeholder}
-                    value={values.firstName}
-                    autoComplete="given-name"
-                    autoCapitalize="words"
-                    enterKeyHint="next"
-                    aria-invalid={!!errors.firstName}
-                    onChange={(e) => set('firstName', e.target.value)}
-                    onBlur={() => blur('firstName')}
+              <div>
+                <p className={questionCls}>{FORM.fields.occupation.label}</p>
+                <div
+                  role="radiogroup"
+                  aria-label={FORM.fields.occupation.label}
+                  className="mt-1 grid gap-2"
+                >
+                  {FORM.fields.occupation.options.map((option) => (
+                    <ChoiceButton
+                      key={option.value}
+                      label={option.value}
+                      chosen={values.occupation === option.value}
+                      onClick={() => chooseAndAdvance('occupation', option.value)}
+                    />
+                  ))}
+                  <ChoiceButton
+                    label={FORM.fields.occupation.other.value}
+                    chosen={values.occupation === OTHER}
+                    onClick={() => chooseAndAdvance('occupation', OTHER)}
                   />
-                  <ErrorLine msg={errors.firstName} />
                 </div>
-                <div>
-                  <label htmlFor="reg-last" className={labelCls}>
-                    {FORM.fields.lastName.label}
-                  </label>
-                  <input
-                    id="reg-last"
-                    className={fieldCls(errors.lastName)}
-                    placeholder={FORM.fields.lastName.placeholder}
-                    value={values.lastName}
-                    autoComplete="family-name"
-                    autoCapitalize="words"
-                    enterKeyHint="next"
-                    aria-invalid={!!errors.lastName}
-                    onChange={(e) => set('lastName', e.target.value)}
-                    onBlur={() => blur('lastName')}
-                  />
-                  <ErrorLine msg={errors.lastName} />
-                </div>
-              </>
+                <ErrorLine msg={errors.occupation} />
+
+                {/* Other is the one answer that cannot auto advance, so the
+                    field appears and the Continue button carries her on. */}
+                {values.occupation === OTHER && (
+                  <div className="reg-step mt-3">
+                    <label htmlFor="reg-other" className={labelCls}>
+                      {FORM.fields.occupation.other.label}
+                    </label>
+                    <input
+                      id="reg-other"
+                      ref={firstFieldRef}
+                      className={fieldCls(errors.occupationOther)}
+                      placeholder={FORM.fields.occupation.other.placeholder}
+                      value={values.occupationOther}
+                      autoComplete="organization-title"
+                      enterKeyHint="next"
+                      aria-invalid={!!errors.occupationOther}
+                      onChange={(e) => set('occupationOther', e.target.value)}
+                      onBlur={() => blur('occupationOther')}
+                    />
+                    <ErrorLine msg={errors.occupationOther} />
+                  </div>
+                )}
+              </div>
             )}
 
             {step === 1 && (
+              <div>
+                <p className={questionCls}>{FORM.fields.readiness.label}</p>
+                <div
+                  role="radiogroup"
+                  aria-label={FORM.fields.readiness.label}
+                  className="mt-1 grid gap-2"
+                >
+                  {FORM.fields.readiness.options.map((option) => (
+                    <ChoiceButton
+                      key={option.value}
+                      label={option.value}
+                      chosen={values.readiness === option.value}
+                      onClick={() => chooseAndAdvance('readiness', option.value)}
+                    />
+                  ))}
+                </div>
+                <ErrorLine msg={errors.readiness} />
+              </div>
+            )}
+
+            {/* Every contact field on one step now, so the two questions above
+                do not add two extra screens to the journey. */}
+            {step === 2 && (
               <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="reg-first" className={labelCls}>
+                      {FORM.fields.firstName.label}
+                    </label>
+                    <input
+                      id="reg-first"
+                      ref={firstFieldRef}
+                      className={fieldCls(errors.firstName)}
+                      placeholder={FORM.fields.firstName.placeholder}
+                      value={values.firstName}
+                      autoComplete="given-name"
+                      autoCapitalize="words"
+                      enterKeyHint="next"
+                      aria-invalid={!!errors.firstName}
+                      onChange={(e) => set('firstName', e.target.value)}
+                      onBlur={() => blur('firstName')}
+                    />
+                    <ErrorLine msg={errors.firstName} />
+                  </div>
+
+                  <div>
+                    <label htmlFor="reg-last" className={labelCls}>
+                      {FORM.fields.lastName.label}
+                    </label>
+                    <input
+                      id="reg-last"
+                      className={fieldCls(errors.lastName)}
+                      placeholder={FORM.fields.lastName.placeholder}
+                      value={values.lastName}
+                      autoComplete="family-name"
+                      autoCapitalize="words"
+                      enterKeyHint="next"
+                      aria-invalid={!!errors.lastName}
+                      onChange={(e) => set('lastName', e.target.value)}
+                      onBlur={() => blur('lastName')}
+                    />
+                    <ErrorLine msg={errors.lastName} />
+                  </div>
+                </div>
+
                 <div>
                   <label htmlFor="reg-email" className={labelCls}>
                     {FORM.fields.email.label}
                   </label>
                   <input
                     id="reg-email"
-                    ref={firstFieldRef}
                     type="email"
                     inputMode="email"
                     className={fieldCls(errors.email)}
@@ -431,8 +643,6 @@ export default function RegistrationModal({
                     value={values.email}
                     autoComplete="email"
                     autoCapitalize="off"
-                    autoCorrect="off"
-                    spellCheck={false}
                     enterKeyHint="next"
                     aria-invalid={!!errors.email}
                     onChange={(e) => set('email', e.target.value)}
@@ -440,43 +650,40 @@ export default function RegistrationModal({
                   />
                   <ErrorLine msg={errors.email} />
                 </div>
+
                 <div>
-                  <label className={labelCls}>{FORM.fields.phone.label}</label>
+                  <p className={labelCls}>{FORM.fields.phone.label}</p>
                   <PhoneField
                     error={!!errors.phone}
-                    onParts={(p) => {
-                      setDialCode(p.dialCode);
-                      setCountryIso(p.country);
-                      set('phone', p.national);
+                    onParts={(parts) => {
+                      setDialCode(parts.dialCode);
+                      setCountryIso(parts.country);
+                      set('phone', parts.national);
                     }}
                   />
                   <ErrorLine msg={errors.phone} />
                 </div>
+
+                <div>
+                  <label htmlFor="reg-city" className={labelCls}>
+                    {FORM.fields.city.label}
+                  </label>
+                  <input
+                    id="reg-city"
+                    className={fieldCls(errors.city)}
+                    placeholder={FORM.fields.city.placeholder}
+                    value={values.city}
+                    autoComplete="address-level2"
+                    autoCapitalize="words"
+                    enterKeyHint="done"
+                    aria-invalid={!!errors.city}
+                    onChange={(e) => set('city', e.target.value)}
+                    onBlur={() => blur('city')}
+                  />
+                  <ErrorLine msg={errors.city} />
+                </div>
               </>
             )}
-
-            {step === 2 && (
-              <div>
-                <label htmlFor="reg-city" className={labelCls}>
-                  {FORM.fields.city.label}
-                </label>
-                <input
-                  id="reg-city"
-                  ref={firstFieldRef}
-                  className={fieldCls(errors.city)}
-                  placeholder={FORM.fields.city.placeholder}
-                  value={values.city}
-                  autoComplete="address-level2"
-                  autoCapitalize="words"
-                  enterKeyHint="done"
-                  aria-invalid={!!errors.city}
-                  onChange={(e) => set('city', e.target.value)}
-                  onBlur={() => blur('city')}
-                />
-                <ErrorLine msg={errors.city} />
-              </div>
-            )}
-
             {step === 3 && (
               <div>
                 {/*

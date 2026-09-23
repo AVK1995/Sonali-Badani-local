@@ -19,6 +19,12 @@ export const TRACKING_FIELDS = [
   // How long she has been struggling. Segments the list for nurturing, and
   // tells Sonali who is in the room before she opens it.
   'marriage_struggle_duration',
+  // Q1 and Q2 on the registration form, plus the gate they decide. `status` is
+  // "Qualified" or "Not Qualified" and is computed in lib/qualification.ts, so
+  // the CRM and the Meta QualifiedLead event can never disagree.
+  'occupation',
+  'readiness',
+  'status',
   'country',
   'country_code',
   'fbc',

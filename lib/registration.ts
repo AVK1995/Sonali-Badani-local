@@ -16,6 +16,7 @@
  */
 import { buildHashedFields } from './meta-capi';
 import { isProductionBrowser } from './production-gate';
+import { qualificationStatus } from './qualification';
 import {
   emptyLead,
   mergeCachedLead,
@@ -44,6 +45,10 @@ export type RegistrationInput = {
   city: string;
   /** One of FORM.fields.duration.options. */
   duration: string;
+  /** Q1. Either an option value, or the free text typed into Other. */
+  occupation: string;
+  /** Q2. One of FORM.fields.readiness.options. */
+  readiness: string;
 };
 
 /**
@@ -71,6 +76,11 @@ async function buildPayload(input: RegistrationInput): Promise<Record<string, st
     country: input.countryIso.toLowerCase(),
     city: input.city.trim(),
     marriage_struggle_duration: input.duration,
+    occupation: input.occupation.trim(),
+    readiness: input.readiness,
+    // Computed, never passed in, so the webhook cannot be told a status that
+    // disagrees with the answers sitting beside it in the same row.
+    status: qualificationStatus(input.occupation, input.readiness),
   };
 
   // Persist first, so the details survive even if the network call fails.

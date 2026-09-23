@@ -563,13 +563,29 @@ export const FORM = {
    */
   sub: `${DAY_TIME_IST}. The Zoom link is posted in the WhatsApp group, so joining it is how you get in.`,
   steps: [
-    { key: 'name', label: 'Your name', hint: 'So Sonali knows who is in the room.' },
+    { key: 'occupation', label: 'About you', hint: 'So Sonali knows who is in the room.' },
     {
-      key: 'contact',
-      label: 'Where to send it',
-      hint: 'For your reminders. The Zoom link itself comes in the WhatsApp group.',
+      key: 'readiness',
+      /**
+       * This step used to read "Where you are right now / There is no wrong
+       * answer here." True, kind, and completely inert: it gave her no reason
+       * to pick anything but the safest option, and "just exploring" is the
+       * safest option on any form.
+       *
+       * The replacement does not pressure her, it reframes what readiness
+       * means. Both claims are ones the site already makes: the 2,000+ private
+       * sessions figure from PROOF.stats, and the line from Sonali's own story
+       * about what separated the women whose marriages changed. Nothing here is
+       * invented, and no statistic about outcomes is implied.
+       */
+      label: 'One honest answer',
+      hint: 'In 2,000+ private sessions, the women whose marriages changed were not the ones with the easiest husbands. They were the ones who decided they were ready before anything looked different.',
     },
-    { key: 'city', label: 'Where you are', hint: 'It helps us plan the timing of the room.' },
+    {
+      key: 'details',
+      label: "You're almost in",
+      hint: 'Enter your details to claim your free seat.',
+    },
     {
       key: 'duration',
       label: 'One last thing',
@@ -577,6 +593,40 @@ export const FORM = {
     },
   ],
   fields: {
+    /**
+     * Q1 and Q2 are the qualification questions, and they sit FIRST on purpose:
+     * they are one tap each, so the form opens with something effortless rather
+     * than a keyboard. Both auto advance on selection.
+     *
+     * `qualifying` on an option is what decides the `QualifiedLead` Meta event
+     * and the `status` field on the webhook. Keeping that flag next to the copy
+     * means a new option cannot be added without someone deciding which side of
+     * the gate it falls on.
+     */
+    occupation: {
+      label: 'What best describes you?',
+      options: [
+        { value: 'Homemaker', qualifying: false },
+        { value: 'Working Professional', qualifying: true },
+        { value: 'Entrepreneur / Business Owner', qualifying: true },
+        { value: 'Freelancer', qualifying: true },
+      ],
+      /** The free text option. Never qualifying: we cannot read it in advance. */
+      other: {
+        value: 'Other',
+        qualifying: false,
+        label: 'Tell us in a few words',
+        placeholder: 'What you do',
+      },
+    },
+    readiness: {
+      label: 'Are you willing to transform your relationship?',
+      options: [
+        { value: "Yes, I'm ready right now", qualifying: true },
+        { value: 'Yes, but I want to understand the approach first', qualifying: true },
+        { value: 'Not sure, just exploring', qualifying: false },
+      ],
+    },
     firstName: { label: 'First name', placeholder: 'Your first name' },
     lastName: { label: 'Last name', placeholder: 'Your last name' },
     email: { label: 'Email address', placeholder: 'you@example.com' },
@@ -593,6 +643,9 @@ export const FORM = {
     },
   },
   errors: {
+    occupation: 'Please choose the one that fits you best.',
+    occupationOther: 'Please tell us in a few words.',
+    readiness: 'Please choose the one that fits you best.',
     firstName: 'Please enter your first name.',
     lastName: 'Please enter your last name.',
     email: 'Please enter a valid email address.',

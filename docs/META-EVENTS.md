@@ -49,6 +49,7 @@ Context events, needed for funnel ratios:
 | `ViewContent` | 3 seconds after landing (a bounce does not count) | `/masterclass` | none |
 | `CompleteRegistration` | Registration form submitted successfully | `/masterclass` | 0 |
 | `Lead` | Same moment as `CompleteRegistration`, fired alongside it | `/masterclass` | 0 |
+| `QualifiedLead` | Same moment, but **only** if the registrant passed both qualification gates | `/masterclass` | 0 |
 | `Purchase` | Same moment as `sales`, fired alongside it | `/welcome-reset` or `/welcome-reset-plus` | 299 or 498 |
 
 ---
@@ -114,6 +115,28 @@ Context events, needed for funnel ratios:
 - **custom_data:** `page` (`welcome`, `welcome-reset` or `welcome-reset-plus`), `group` (`masterclass` or `reset-community`)
 - **event_id:** `<lead_id>_wa_<page>_<group>`. Repeat taps on the same button collapse to one at Meta within 48 hours.
 - **Why it matters:** only about 2 in 10 registrants were joining the masterclass group before 3 Sept 2026, which meant 8 in 10 never received a Zoom link. See section 6.
+
+### `QualifiedLead`
+
+- **Page:** `/masterclass`
+- **Trigger:** the registration form is submitted **and** both qualification gates pass. Fires alongside `CompleteRegistration` and `Lead`, never instead of them. A qualified registrant produces **three** events, everyone else produces **two**.
+- **The gates**, from the first two questions on the form:
+
+  | Q1 "What best describes you?" | Passes |
+  |---|---|
+  | Working Professional, Entrepreneur / Business Owner, Freelancer | yes |
+  | Homemaker, or anything typed into Other | no |
+
+  | Q2 "Are you willing to transform your relationship?" | Passes |
+  |---|---|
+  | Yes I'm ready right now, Yes but I want to understand the approach first | yes |
+  | Not sure, just exploring | no |
+
+  Both must pass. The same decision sets `status` on the registration webhook to `Qualified` or `Not Qualified`, computed in one place so the Meta event and the CRM row can never disagree.
+- **custom_data:** identical to `CompleteRegistration`
+- **event_id:** `<lead_id>_qlead`
+- **Matching:** fired after the form is complete, so it carries the same full customer data as the other two: email, phone, name, city, `fbp`, `fbc`, IP and user agent.
+- **Counting:** `QualifiedLead` ÷ `CompleteRegistration` is the qualified share of registrations. `CompleteRegistration` minus `QualifiedLead` is the unqualified count; there is no separate event for failing the gate.
 
 ### `sales` and `Purchase`
 
@@ -214,6 +237,7 @@ Dates are when the change was committed. Deployment may have followed shortly af
 | 2026-09-03 | Fixed desktop mouse scrolling on form step 4, which previously could not be scrolled | Desktop `CompleteRegistration` was likely suppressed before this |
 | 2026-09-03 | "Camera off" reassurance replaced with a request to keep cameras on | Possible drop in `CompleteRegistration`; the old copy answered a privacy objection |
 | 2026-09-17 | Sticky "Save my seat" bar now fires `AddToCart` | `AddToCart` rises from this date as a tracking fix. Do not compare `AddToCart` across it |
+| 2026-09-23 | Two qualification questions added as steps 1 and 2 of the form; `QualifiedLead` event and webhook `status` introduced | `QualifiedLead` does not exist before this date. The form also grew from 3 question screens to 4, which may move `CompleteRegistration` in either direction: two extra taps to complete, but both are one-tap and auto advancing |
 
 ---
 
@@ -224,6 +248,8 @@ Suggested starting points. Each uses a denominator that section 5 supports.
 | Question | Calculation | Watch out for |
 |---|---|---|
 | Landing to registration | `CompleteRegistration` ÷ landing `PageView` | PageView includes repeat visits |
+| Qualified share | `QualifiedLead` ÷ `CompleteRegistration` | Only exists from 23 Sept 2026 |
+| Qualified to purchase | `sales` ÷ `QualifiedLead` | Compare against the same ratio on `CompleteRegistration` to see whether the gate predicts buying |
 | Offer take-up | (`oto_reset_cta` + `oto_reset_plus_cta`) ÷ `CompleteRegistration` | Clicks, not purchases (5.2) |
 | Offer decline | `oto_decline` ÷ `CompleteRegistration` | Some registrants close the tab and fire neither |
 | Add-on interest | `oto_reset_plus_add` ÷ `CompleteRegistration` | Interest, not intent to buy |
